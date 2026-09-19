@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BLOG = ROOT / "blog"
+BLOG = ROOT  # site lives at the repo root: GitHub Pages only serves "/" or "/docs"
 
 # Published site content, in reading order.
 SITE_FILES = [

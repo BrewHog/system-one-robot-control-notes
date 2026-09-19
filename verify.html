@@ -19,8 +19,7 @@ directory. The steps below take about two minutes and require nothing from me.</
 
 <h2>Step 1 — do the files match the manifest?</h2>
 
-<pre><code>cd blog
-shasum -a 256 -c manifest.txt      # macOS
+<pre><code>shasum -a 256 -c manifest.txt      # macOS
 sha256sum -c manifest.txt          # Linux</code></pre>
 
 <p>Expected: one <code>OK</code> per file and no <code>FAILED</code> lines. The manifest

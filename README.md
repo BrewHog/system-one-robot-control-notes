@@ -24,24 +24,28 @@ cap held for 0.9 s can rotate up to 1.98 rad while the deadband it aims at is on
 
 ## Layout
 
+The site is served from the repository root, because GitHub Pages only supports `/` or
+`/docs` as a source directory.
+
 ```
-blog/                    the published site (plain static HTML/CSS)
-  index.html             overview, results table, note index
-  verify.html            how to verify the timestamps yourself
-  notes/                 the seven write-ups
-  evidence/              raw per-tick logs, run logs, diagnosis JSON
-  src/                   source that produced the evidence
-  manifest.txt           SHA-256 of every published file
-  manifest.txt.ots       OpenTimestamps proof (Bitcoin-backed)
-  manifest.tsr           RFC 3161 timestamp token
+index.html               overview, results table, note index
+verify.html              how to verify the timestamps yourself
+notes/                   the seven write-ups
+evidence/                raw per-tick logs, run logs, diagnosis JSON
+src/                     source that produced the evidence
+manifest.txt             SHA-256 of every published file
+manifest.txt.ots         OpenTimestamps proof (Bitcoin-backed)
+manifest.tsr             RFC 3161 timestamp token
 scripts/                 runnable harnesses, in the order the notes use them
 sim/                     Dockerfile + launch file for the arm64 ROS 2 simulator
 ```
 
+No build step: plain HTML and one stylesheet. `index.html` at the root also takes
+precedence over this README when Pages renders the site.
+
 ## Verify the record
 
 ```bash
-cd blog
 shasum -a 256 -c manifest.txt        # 27 files, all OK
 pip install opentimestamps-client
 ots verify manifest.txt.ots          # Bitcoin-anchored proof for the manifest digest
@@ -50,7 +54,7 @@ openssl ts -reply -in manifest.tsr -text   # independent RFC 3161 timestamp
 
 `ots verify` reports `Pending confirmation in Bitcoin blockchain` until the next Bitcoin
 block contains the calendar commitment (roughly hourly); `ots upgrade manifest.txt.ots`
-then promotes it to a confirmed block height. Full details in `blog/verify.html`.
+then promotes it to a confirmed block height. Full details in `verify.html`.
 
 ## Attribution
 

@@ -46,11 +46,12 @@ QUESTIONS = {
     "target": Choice(
         instructions=(
             "The robot is driving to shelf waypoints in a warehouse simulator. Which "
-            "waypoint should it be heading to? It is mid-journey, so unless the robot is "
-            "already within one metre of its current target, keep the current target "
-            "rather than switching. Switching targets mid-drive makes the robot spin in "
-            "place, so only choose a different waypoint when the current one has been "
-            "reached."
+            "waypoint should it be heading to next? Prefer a waypoint listed in "
+            "`not_yet_reached` so the robot makes progress through the route. It is "
+            "mid-journey, so unless the robot is already within one metre of its "
+            "current target, keep the current target rather than switching: switching "
+            "targets mid-drive makes the robot spin in place. Only choose a different "
+            "waypoint when the current one has been reached."
         ),
         criteria={wp["name"]: None for wp in WAYPOINTS},
     ),
@@ -79,6 +80,11 @@ MIN_LINEAR = 0.0
 MAX_LINEAR = 2.2
 TURN_GAIN = 1.8
 MAX_ANGULAR = 2.2
+# Rad/s^2-ish ceiling on how fast the commanded turn rate may change per tick.
+MAX_ANGULAR_SLEW = 8.0
+
+# A waypoint counts as reached inside this radius (metres).
+ARRIVE_RADIUS = 0.6
 
 # How often cmd_vel is re-published. turtlesim integrates a decaying command, so
 # the command must be held continuously rather than sent once per judgment.
@@ -91,12 +97,17 @@ class Rosbridge:
     def __init__(self, port: int) -> None:
         self.ws = websocket.create_connection(f"ws://127.0.0.1:{port}", timeout=10)
         self._id = 0
+        # throttle_rate caps the pose stream at ~1/rate ms. Without it turtlesim's
+        # publisher floods the socket and every read returns a stale pose from the
+        # backlog, which makes the controller think the robot is not moving.
         self.ws.send(
             json.dumps(
                 {
                     "op": "subscribe",
                     "topic": "/turtle1/pose",
                     "type": "turtlesim/msg/Pose",
+                    "throttle_rate": 0,
+                    "queue_length": 1,
                     "id": "pose",
                 }
             )
@@ -107,30 +118,29 @@ class Rosbridge:
         return f"c{self._id}"
 
     def pose(self) -> dict:
-        """Return the freshest pose.
+        """Return the newest pose, discarding any backlog.
 
-        Drains whatever is already queued first: returning the first buffered
-        message instead of the last hands the controller a stale pose, which
-        makes it look like the robot is not moving.
+        turtlesim publishes /turtle1/pose far faster than the control loop runs.
+        If the loop reads one buffered message per cycle it consumes a stale queue
+        and the controller sees yesterday's pose, which shows up as a robot that
+        spins forever and never closes on its target. Draining to the newest
+        message is what makes the feedback current.
         """
-        self.ws.settimeout(0.05)
+        import select as _select
+
+        sock = self.ws.sock
         latest = None
-        try:
-            while True:
-                data = json.loads(self.ws.recv())
-                if data.get("op") == "publish" and data.get("topic") == "/turtle1/pose":
-                    latest = data["msg"]
-        except Exception:  # noqa: BLE001 - timeout means the queue is drained
-            pass
-        if latest is not None:
-            return latest
-        # Nothing buffered: wait properly for the next message.
-        self.ws.settimeout(5)
-        for _ in range(200):
+        while True:
+            # Only read what is already on the wire.
+            ready, _, _ = _select.select([sock], [], [], 0.0 if latest else 2.0)
+            if not ready:
+                break
             data = json.loads(self.ws.recv())
             if data.get("op") == "publish" and data.get("topic") == "/turtle1/pose":
-                return data["msg"]
-        raise TimeoutError("no /turtle1/pose message received")
+                latest = data["msg"]
+        if latest is None:
+            raise TimeoutError("no /turtle1/pose message received")
+        return latest
 
     def publish(self, linear: float, angular: float) -> None:
         self.ws.send(
@@ -184,11 +194,14 @@ def distance_to_walls(x: float, y: float) -> float:
     return min(x, y, 11.09 - x, 11.09 - y)
 
 
-def build_state(pose: dict, current_target: str | None, history: list[str]) -> dict:
+def build_state(
+    pose: dict, current_target: str | None, reached: set[str], history: list[str]
+) -> dict:
     distances = {
         wp["name"]: round(math.hypot(wp["x"] - pose["x"], wp["y"] - pose["y"]), 2)
         for wp in WAYPOINTS
     }
+    unvisited = [wp["name"] for wp in WAYPOINTS if wp["name"] not in reached]
     return {
         "robot": {
             "x": round(pose["x"], 2),
@@ -199,7 +212,8 @@ def build_state(pose: dict, current_target: str | None, history: list[str]) -> d
         "waypoints": WAYPOINTS,
         "distance_to_waypoints_m": distances,
         "current_target": current_target,
-        "already_visited": history[-4:],
+        "already_reached": sorted(reached),
+        "not_yet_reached": unvisited,
     }
 
 
@@ -216,14 +230,13 @@ def jev_decide(client: TypeSafeClient, state: dict) -> tuple[dict, float]:
     return answers, latency_ms
 
 
-def scripted_decide(pose: dict, current_target: str | None, history: list[str]) -> dict:
+def scripted_decide(
+    pose: dict, current_target: str | None, reached: set[str], history: list[str]
+) -> dict:
     """Baseline policy with no model in the loop, for contrast."""
     target = current_target
-    if target is None or any(
-        wp["name"] == target and math.hypot(wp["x"] - pose["x"], wp["y"] - pose["y"]) < 1.0
-        for wp in WAYPOINTS
-    ):
-        unvisited = [wp for wp in WAYPOINTS if wp["name"] not in history[-4:]]
+    if current_target is None or current_target in reached:
+        unvisited = [wp for wp in WAYPOINTS if wp["name"] not in reached]
         target = (unvisited or WAYPOINTS)[0]["name"]
     wall = distance_to_walls(pose["x"], pose["y"])
     return {
@@ -262,18 +275,18 @@ def main() -> int:
     client_cm = TypeSafeClient() if not args.no_jev else None
     client = client_cm.__enter__() if client_cm else None
     current_target: str | None = None
-    crossed: dict[str, int] = {}
+    reached: set[str] = set()
 
     try:
         for tick in range(1, args.ticks + 1):
             # --- Slow loop: observe, then ask JEV what it means. ---
             pose = ros.pose()
-            state = build_state(pose, current_target, history)
+            state = build_state(pose, current_target, reached, history)
 
             if client is not None:
                 answers, latency = jev_decide(client, state)
             else:
-                answers, latency = scripted_decide(pose, current_target, history), 0.0
+                answers, latency = scripted_decide(pose, current_target, reached, history), 0.0
 
             if latency:
                 latencies.append(latency)
@@ -283,20 +296,31 @@ def main() -> int:
             )
             distance = math.hypot(target["x"] - pose["x"], target["y"] - pose["y"])
 
-            # Hysteresis: honour the model's switch only when the current target is
-            # finished or clearly worse. Without this the robot chases a target that
-            # changes every tick and spins in place instead of travelling.
-            if current_target is not None and target["name"] != current_target:
+            # Hysteresis: honour a model switch only when the current target is done
+            # or clearly worse. Without this the robot chases a target that changes
+            # every tick and spins in place instead of travelling; with it, arrival
+            # is what releases the target.
+            arrived = False
+            if current_target is not None:
                 current_wp = next(wp for wp in WAYPOINTS if wp["name"] == current_target)
                 current_distance = math.hypot(
                     current_wp["x"] - pose["x"], current_wp["y"] - pose["y"]
                 )
-                if current_distance > 1.0 and current_distance <= distance:
-                    target = current_wp
-                    distance = current_distance
+                arrived = current_distance < ARRIVE_RADIUS
+
+                if target["name"] != current_target:
+                    # A switch is allowed once the current target is reached, or if
+                    # the model's pick is strictly closer than what remains.
+                    if not arrived and current_distance <= distance:
+                        target = current_wp
+                        distance = current_distance
+            else:
+                arrived = distance < ARRIVE_RADIUS
 
             current_target = target["name"]
             history.append(target["name"])
+            if arrived:
+                reached.add(current_target)
 
             urgency = max(0.0, min(1.0, answers["urgency"]))
             wall_risk = answers["wall_risk"]
@@ -325,7 +349,9 @@ def main() -> int:
             # the decision, the code supplies the continuous actuation.
             hold_until = time.perf_counter() + args.hold
             last_linear = last_angular = None
+            previous_angular = 0.0
             while time.perf_counter() < hold_until:
+                cycle_start = time.perf_counter()
                 pose = ros.pose()
                 heading = math.atan2(target["y"] - pose["y"], target["x"] - pose["x"])
                 error = norm_angle(heading - pose["theta"])
@@ -334,29 +360,35 @@ def main() -> int:
                 linear = MIN_LINEAR + urgency * (MAX_LINEAR - MIN_LINEAR)
                 if wall_risk > 0.6:
                     linear = min(linear, 0.45)
-                if distance < 0.8:
-                    linear = min(linear, 0.5)  # arrive gently
+                if distance < 0.9:
+                    linear = min(linear, 0.6)  # arrive gently
 
-                # Proportional unicycle controller. Angular rate is proportional to
-                # the heading error and forward speed shrinks as the error grows, so
-                # the robot arcs onto the target instead of bang-bang spinning past
-                # it. A saturated "turn in place until aligned" rule limit-cycles:
-                # at 2.2 rad/s the robot sweeps a half-turn per judgment and
-                # oscillates forever without converging.
-                angular = max(-MAX_ANGULAR, min(MAX_ANGULAR, TURN_GAIN * error))
-                linear *= max(0.0, math.cos(min(abs(error), math.pi / 2)))
+                # Proportional unicycle controller with rate limiting. The angular
+                # rate is proportional to heading error but clamped and slew-limited,
+                # so the robot arcs onto the target. An unclamped or bang-bang turn
+                # saturates, overshoots the heading, reverses, and spins in place.
+                desired_angular = max(-MAX_ANGULAR, min(MAX_ANGULAR, TURN_GAIN * error))
+                max_step = MAX_ANGULAR_SLEW * (1.0 / ACTUATION_HZ)
+                delta = max(-max_step, min(max_step, desired_angular - previous_angular))
+                angular = previous_angular + delta
+                previous_angular = angular
+
+                # Slow down while turning hard so the robot converges instead of
+                # orbiting at full speed.
+                turn_penalty = max(0.15, math.cos(min(abs(error), math.pi / 2)))
+                linear *= turn_penalty
 
                 ros.publish(linear, angular)
                 last_linear, last_angular = linear, angular
-                time.sleep(1.0 / ACTUATION_HZ)
+
+                elapsed = time.perf_counter() - cycle_start
+                time.sleep(max(0.0, 1.0 / ACTUATION_HZ - elapsed))
 
             print(
                 f"  cmd=({last_linear:.2f},{last_angular:+.2f}) "
                 f"-> d={distance:.2f}"
             )
 
-            if distance < 0.8:
-                crossed[target["name"]] = crossed.get(target["name"], 0) + 1
         visited = sorted({d["answers"]["target"] for d in decisions})
         visited = sorted({d["answers"]["target"] for d in decisions})
     finally:
