@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify this record — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="index.html">Working Notes</a> / verify</p>
+<h1>Verify this record</h1>
+<p class="sub">How to independently confirm what these files contain and when they existed.</p>
+
+<p>Do not take my word for any of this. Everything needed to check it is in this
+directory. The steps below take about two minutes and require nothing from me.</p>
+
+<h2>Step 1 — do the files match the manifest?</h2>
+
+<pre><code>cd blog
+shasum -a 256 -c manifest.txt      # macOS
+sha256sum -c manifest.txt          # Linux</code></pre>
+
+<p>Expected: one <code>OK</code> per file and no <code>FAILED</code> lines. The manifest
+lists 26 files: the published pages, the raw evidence they cite, and the source code that
+produced the evidence.</p>
+
+<p>If any line says <code>FAILED</code>, the content has changed since the manifest was
+generated and you should distrust that file. <code>manifest.txt</code> cannot appear inside
+itself, so the two proofs in steps 2 and 3 cover its digest directly rather than a separate
+hash file.</p>
+
+<p><strong>Read the head of the manifest first.</strong> It records the digest that was
+anchored, which you should be able to recompute yourself:</p>
+
+<pre><code>shasum -a 256 manifest.txt</code></pre>
+
+<h2>Step 2 — when did those files exist?</h2>
+
+<p><code>manifest.txt</code> was submitted to <strong>four independent OpenTimestamps
+calendar servers</strong>, which aggregate many requests into a Merkle tree and commit the
+root into a Bitcoin transaction. The result is <code>manifest.txt.ots</code>:</p>
+
+<pre><code>pip install opentimestamps-client
+ots verify manifest.txt.ots
+ots info  manifest.txt.ots      # shows the merkle path and the calendars used</code></pre>
+
+<p><code>ots info</code> prints the file hash it is proving, which must equal your own
+<code>shasum -a 256 manifest.txt</code>. If they differ, you are looking at a proof for a
+different version of the manifest, and the right conclusion is to distrust it rather than
+to assume a typo. The four calendars used were
+<code>a.pool.opentimestamps.org</code>, <code>b.pool.opentimestamps.org</code>,
+<code>a.pool.eternitywall.com</code> and <code>ots.btc.catallaxy.com</code>.</p>
+
+<p>Because a merkle root is only written into a block roughly once per hour, a freshly
+created proof reports:</p>
+
+<pre><code>Pending confirmation in Bitcoin blockchain</code></pre>
+
+<p>and once a block contains the commitment it reports the block height and time instead.
+To upgrade a pending proof — no secret key required, only the calendar servers:</p>
+
+<pre><code>ots upgrade manifest.txt.ots
+ots verify manifest.txt.ots</code></pre>
+
+<p>Once confirmed, the claim becomes: <em>these exact bytes existed at or before Bitcoin
+block N.</em> That statement involves no trusted third party. It does not depend on me, on
+GitHub, on TypeSafe, or on the calendar servers remaining online — only on the Bitcoin
+blockchain being what it is. Note the asymmetry: the <em>proof</em> is permanent, but
+converting a pending proof into a confirmed one needs the calendars, so upgrading promptly
+is worth doing.</p>
+
+<h2>Step 3 — a second, independent timestamp</h2>
+
+<p><code>manifest.tsr</code> is an RFC&nbsp;3161 timestamp token, issued by a commercial
+Certificate Authority, for the same manifest. It is a separate trust model: a signed,
+audited assertion of wall-clock time rather than a blockchain commitment.</p>
+
+<pre><code>openssl ts -reply -in manifest.tsr -text</code></pre>
+
+<p>Look for <code>Status: Granted</code>, and confirm the <code>Message data</code> hex
+block equals your own SHA-256 of <code>manifest.txt</code>. Two independent mechanisms,
+two different trust models, agreeing on the same digest. Neither required trusting me to
+state a date.</p>
+
+<p>The token issued for this bundle reads <code>Status: Granted</code>,
+<code>Hash Algorithm: sha256</code>, <code>Time stamp: Sep 19 06:22:46 2026 GMT</code>,
+serial <code>0x836F9A4B199CA0076B93202C02A3D9CA</code>. Again, the imprint is the point:
+compare it against the digest you computed rather than against a number printed here,
+because a manifest can be regenerated and this page cannot notice.</p>
+
+<h2>Step 4 — check the arithmetic behind the headline claim</h2>
+
+<p>The most contestable claim on this site is that the shipped control law cannot escape
+its deadband. That is not an opinion, it is a division, and you can check it from the
+published source: </p>
+
+<pre><code>src/scripts/jev_controller.py      # the control law in question
+src/scripts/control_law_diagnosis.py  # the harness that measures it
+evidence/control_law_diagnosis.json   # the raw result</code></pre>
+
+<p>The argument: the coarse branch triggers at <code>|error| &gt; 0.5</code> rad and
+commands <code>2.4 &times; error</code>, saturated at <code>2.2</code> rad/s, held for
+<code>0.9</code> s. One hold therefore rotates up to <code>2.2 &times; 0.9 = 1.98</code> rad
+while the deadband is <code>0.5</code> rad wide — roughly <code>1.98 / 0.5 &asymp; 4&times;</code>
+overshoot. You can also just read the recorded run: identical poses for five consecutive
+ticks at maximum commanded rotation.</p>
+
+<h2>What none of this proves</h2>
+
+<ul>
+<li><strong>It does not prove I was first.</strong> Nothing can. Ideas in this space are
+    being worked on concurrently by many people, and a timestamp only orders events that
+    were actually published.</li>
+<li><strong>It does not prove the work is good.</strong> It proves the files are these
+    files and existed at that time. Whether the conclusions are right is a separate
+    question that the evidence and the code are there for you to attack.</li>
+<li><strong>It does not establish priority over unpublished work.</strong> Someone who
+    did this earlier and never wrote it down is invisible to timestamps, and that is a
+    limitation of the method, not a claim I can make away.</li>
+<li><strong>The RFC 3161 token depends on a CA.</strong> The Bitcoin anchor does not. That
+    is why both exist and why the blockchain one is the backbone.</li>
+</ul>
+
+<p class="nav" style="margin-top:3rem">
+<a href="index.html">&larr; Back to Working Notes</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

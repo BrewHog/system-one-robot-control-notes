@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System 1 and System 2, and why robotics needs both — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 01</p>
+<h1>System 1 and System 2, and why robotics needs both</h1>
+<p class="meta">2026-09-18 &middot; Justin (<a href="https://github.com/BrewHog">BrewHog</a>)</p>
+
+<p>This is the idea the rest of these notes are testing, written down before I had any
+measurements, so that the record shows what I expected versus what I got.</p>
+
+<h2>The two jobs</h2>
+
+<p>A robot doing anything useful is doing two categorically different things at once.</p>
+
+<p><strong>System 2</strong> is deliberation: planning a route, reading a work order,
+deciding a shelf is the wrong shelf, recovering when something unexpected happens. It is
+slow, expensive, general, and it is what language models are good at. Calling a frontier
+model takes seconds and produces paragraphs of reasoning.</p>
+
+<p><strong>System 1</strong> is reflex: is the wall close enough to matter, should I commit
+to this waypoint or hedge, is this grip slipping. It is fast, cheap, narrow, and it has to
+happen inside a control loop. If your reflex layer takes two seconds, you do not have a
+reflex layer; you have a slow deliberator standing where a reflex should be.</p>
+
+<p>The mistake I keep seeing is using one model for both jobs. A frontier LLM in a
+control loop gives you a robot that stands still while it thinks. A small classifier
+trying to plan gives you a robot that confidently does something stupid in a novel
+situation. Neither is a tuning problem. They are structural mismatches.</p>
+
+<h2>Why this matters now</h2>
+
+<p>The reason the split is suddenly practical rather than aspirational is latency. If a
+System&nbsp;1 model can return a typed judgment in a couple hundred milliseconds, then the
+loop budget for robotic reflex finally closes. That is the claim I wanted to test, and it
+is a claim about a number, not about vibes. So the first thing I did was measure the
+number rather than assume it.</p>
+
+<h2>The division of labour I settled on</h2>
+
+<p>The part of this that took me longest to get right, conceptually, is where the boundary
+sits. My current answer:</p>
+
+<table>
+<thead><tr><th>Belongs to the model (System 1)</th><th>Belongs to code</th></tr></thead>
+<tbody>
+<tr>
+  <td>Judgments that resist a formula: is this risky, is this worth a detour, how much
+      should I commit to the current plan.</td>
+  <td>Exact geometry: heading to target, distance, angle wrapping, arrival tolerance.</td>
+</tr>
+<tr>
+  <td>Classification of a messy situation into a small decision.</td>
+  <td>Conversion of that decision into wheel commands, and the control law that keeps
+      them stable.</td>
+</tr>
+<tr>
+  <td>Novel situations where a threshold would be arbitrary.</td>
+  <td>Anything with a correct answer that can be computed, which is most things.</td>
+</tr>
+</tbody>
+</table>
+
+<p>Stated as a rule: <em>if it can be computed, compute it; ask the model only what cannot
+be computed.</em> Every question I ask the model is a question I could not write a
+satisfying <code>if</code> statement for.</p>
+
+<p>This is also the split the TypeSafe design guidance points at — typed judgments rather
+than free text, so the consumer of the answer is code and not a human reading prose. I
+took that seriously when designing the questions: every question returns a boolean, one of
+a fixed set of labels, or a position on a defined scale, and nothing else.</p>
+
+<h2>What I expected, recorded in advance</h2>
+
+<ol>
+<li>The System&nbsp;1 round trip would be fast enough for a control loop. <em>(Measured:
+median 146&nbsp;ms. Confirmed — see <a href="jev-latency.html">note 03</a>.)</em></li>
+<li>The model's judgments would vary sensibly with robot state rather than being noise.
+<em>(Partially confirmed, but with a scale problem I did not anticipate — its scores came
+back outside the documented range. See <a href="what-did-not-work.html">note 05</a>.)</em></li>
+<li>Wiring the two together would be the easy part, because each layer independently
+worked. <em>(Wrong. This is where it broke — see <a href="jev-closed-loop.html">note 04</a>.)</em></li>
+</ol>
+
+<div class="note">
+<p>Point 3 is the interesting one in hindsight. I had a working transport, a working
+simulator, and a working model, and the composition still failed. Integration is not the
+easy part; integration is where the assumptions of each layer get tested against the
+others, and my assumptions did not survive.</p>
+</div>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="ros-mcp-verified.html">note 02 — Getting a simulated robot under MCP control</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026. Publicly readable,
+deliberately not indexed — see <a href="on-publication.html">note 07</a>.</p>
+</div>
+
+</div>
+</body>
+</html>

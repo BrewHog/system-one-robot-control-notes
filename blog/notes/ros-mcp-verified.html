@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Getting a simulated robot under MCP control — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 02</p>
+<h1>Getting a simulated robot under MCP control</h1>
+<p class="meta">2026-09-18 &middot; all timestamps PDT</p>
+
+<h2>Goal</h2>
+
+<p>Before involving any model in a control loop, I wanted the boring half proven: that an
+MCP client can drive a simulated robot end to end, with the movement confirmed by
+something other than the client's own claim of success.</p>
+
+<h2>The stack</h2>
+
+<pre><code>my client  --MCP(stdio)-->  ros-mcp-server  --rosbridge(ws)-->  turtlesim
+                                                                    |
+                                       independent pose read &lt;-------+
+                                       (2nd rosbridge connection)</code></pre>
+
+<p>The important detail is the second connection. A tool that reports "command sent" has
+proven nothing about whether the robot moved. So the test publishes velocity commands
+through MCP and then reads <code>/turtle1/pose</code> over a <em>separate</em> WebSocket
+connection, so the verification path shares no code with the command path.</p>
+
+<h2>Environment</h2>
+
+<table>
+<thead><tr><th>Component</th><th>Version / detail</th></tr></thead>
+<tbody>
+<tr><td>Host</td><td>Apple Silicon macOS</td></tr>
+<tr><td>Container</td><td>ROS 2 Jazzy, <code>linux/arm64</code>, custom image</td></tr>
+<tr><td>Server</td><td><code>ros-mcp</code> over stdio transport</td></tr>
+<tr><td>Bridge</td><td>rosbridge WebSocket on <code>127.0.0.1:9090</code></td></tr>
+<tr><td>Robot</td><td><code>turtlesim</code>, 11.09&nbsp;&times;&nbsp;11.09&nbsp;m world</td></tr>
+</tbody>
+</table>
+
+<h2>The ARM64 problem that cost me an evening</h2>
+
+<p>The upstream example image for turtlesim is amd64-only. On Apple Silicon that means
+QEMU emulation, which is far too slow to be useful for anything real-time, and worse, its
+<code>rosapi</code> node never advertised its services. Since ros-mcp's discovery tools
+work by asking <code>rosapi</code> what exists, the server connected successfully and could
+see nothing. That failure mode is genuinely confusing: every connectivity check passes and
+every introspection call returns empty.</p>
+
+<p>The fix was a native <code>arm64</code> image built on a Jazzy base with
+<code>rosapi</code> launched explicitly, rather than relying on the example's launch
+arrangement. Two consequences worth recording: the emulation problem and the discovery
+problem had the same root cause, and "it connected" is not the same as "it can see
+anything."</p>
+
+<h2>Result</h2>
+
+<p>The end-to-end test passes, and it passed identically on three separate runs — the
+simulated robot always moves 1.613&nbsp;m and rotates 1.613&nbsp;rad, because the test drives
+a fixed velocity script for a fixed duration. From the published run log
+(<a href="../evidence/mcp_e2e_test_output.txt">evidence/mcp_e2e_test_output.txt</a>):</p>
+
+<pre><code>tools exposed by ros-mcp (31): call_service, cancel_action_goal,
+  connect_to_robot, ..., publish_once, publish_for_durations, send_action_goal,
+  subscribe_once, subscribe_for_duration, view_saved_image
+
+connect_to_robot -&gt; {"connectivity_test": {"ping": {"success": true,
+  "response_time_ms": 0.059}, "port_check": {"open": true, ...}}}
+get_topics -&gt; 7 topics
+pose before : x=6.983 y=11.088 theta=-3.124
+pose after  : x=7.078 y=9.479  theta=-1.511
+delta       : dx=+0.096 dy=-1.610 distance=1.613 dtheta=+1.613
+
+PASS: MCP client drove the simulated robot through ros-mcp</code></pre>
+
+<table>
+<thead><tr><th>Measurement</th><th class="num">Value</th></tr></thead>
+<tbody>
+<tr><td>MCP tools discovered</td><td class="num">31</td></tr>
+<tr><td>ROS topics visible</td><td class="num">7</td></tr>
+<tr><td>ROS services visible</td><td class="num">57</td></tr>
+<tr><td>ROS nodes</td><td class="num">3</td></tr>
+<tr><td>rosbridge ping response</td><td class="num">0.06&nbsp;ms</td></tr>
+<tr><td>Independently verified displacement</td><td class="num">1.613&nbsp;m (3/3 runs)</td></tr>
+<tr><td>Independently verified rotation</td><td class="num">1.613&nbsp;rad (3/3 runs)</td></tr>
+</tbody>
+</table>
+
+<p>Worth noting what does <em>not</em> match between runs: the absolute start pose, because
+the robot keeps whatever position the previous experiment left it in. The
+<em>delta</em> is what repeats exactly, which is the correct thing to check — a test that
+verified absolute position would be flaky and one that reported only "success" would prove
+nothing.</p>
+
+<p class="pass">Verdict: the transport layer works. An MCP client can drive a simulated
+robot, and the movement is confirmed by an independent read rather than by trusting the
+tool's return value.</p>
+
+<h2>Why the 31 tools matter</h2>
+
+<p>Those tools are the model's entire action space. This is the part that makes the
+architecture plausible: the agent does not get a bespoke API I designed for it, it gets the
+same ROS surface a human engineer would use — publish, subscribe, call service, read
+parameters. Anything that can be done through rosbridge is available to the model without
+new integration work.</p>
+
+<p>It is also, in retrospect, a large action space for a System&nbsp;1 reflex layer to be
+pointed at. In the closed-loop experiment I deliberately narrowed it to a single
+<code>cmd_vel</code> publish, because reflex is not the place for a model choosing among
+31 verbs.</p>
+
+<h2>Attribution</h2>
+
+<p><code>ros-mcp-server</code> is <a href="https://github.com/robotmcp/ros-mcp-server">Contoro's
+project</a>, used unmodified. My contribution at this layer is the test harness and the
+ARM64 simulator image, not the server.</p>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="jev-latency.html">note 03 — Measuring the System 1 round trip</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

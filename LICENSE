@@ -1,0 +1,52 @@
+Working Notes: coupling a System 1 model to a robot control loop
+Copyright (c) 2026 Justin (github.com/BrewHog)
+
+This repository contains two kinds of material, licensed separately.
+
+1. CODE — everything under scripts/, sim/, and blog/src/
+   MIT License
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in
+   all copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+2. WRITING AND EVIDENCE — the notes, README, and recorded measurements
+   Creative Commons Attribution 4.0 International (CC BY 4.0)
+   https://creativecommons.org/licenses/by/4.0/
+
+   You may share and adapt this material for any purpose, including
+   commercially, provided you give appropriate credit to Justin
+   (github.com/BrewHog) and indicate if changes were made.
+
+THIRD-PARTY MATERIAL IS NOT COVERED BY THE ABOVE.
+
+   ros-mcp-server (https://github.com/robotmcp/ros-mcp-server) is Contoro's work
+   and is NOT redistributed here; it is referenced by commit hash in
+   blog/manifest.txt and remains under its own license.
+
+   ROS 2 and turtlesim are the work of Open Robotics and the ROS community.
+   The System 1 model (JEV) is TypeSafe's, documented at
+   https://docs.typesafe.ai/introduction and not redistributed here.
+
+Attribution for this work, if you build on it:
+
+   Justin (github.com/BrewHog), "Working Notes: coupling a System 1 model to a
+   robot control loop", September 2026.
+
+The timestamps in blog/manifest.txt.ots and blog/manifest.tsr exist so that
+attribution claim can be checked rather than taken on trust. Please keep the
+citation if you use the material.

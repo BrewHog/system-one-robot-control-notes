@@ -1,0 +1,37 @@
+# Working notes. Publicly readable, deliberately not indexed.
+#
+# Why this file exists: robots.txt is a *crawl directive*, not access control.
+# This site is meant to be verifiable and archivable, not discoverable through
+# a general web search. See /notes/on-publication.html for the full reasoning.
+
+User-agent: *
+Disallow: /
+
+# Archival and verification crawlers are explicitly welcome. Preserving a
+# durable copy of this record is the entire point of publishing it.
+User-agent: ia_archiver
+Allow: /
+
+User-agent: archive.org_bot
+Allow: /
+
+User-agent: Wayback
+Allow: /
+
+User-agent: archive.today
+Allow: /
+
+User-agent: arquivo.pt
+Allow: /
+
+User-agent: perma_cc
+Allow: /
+
+User-agent: CommonCrawl
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Timetravel
+Allow: /

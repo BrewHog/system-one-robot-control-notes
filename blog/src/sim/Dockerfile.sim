@@ -1,0 +1,31 @@
+# Native arm64 ROS 2 simulator for the Contoro x JEV work.
+#
+# Why not osrf/ros:humble-desktop (what examples/5_docker_turtlesim uses)?
+#   * It publishes amd64 only, so on this Apple Silicon Mac it runs under QEMU
+#     emulation - wrong for a target of near-instant, low-latency reactions.
+#   * Its rosapi node never successfully advertised its services, which breaks
+#     ros-mcp's discovery tools (get_topics / get_services).
+#
+# ros:jazzy is a multi-arch official image with a native arm64/v8 variant, so
+# everything runs at full speed and rosapi works.
+
+FROM ros:jazzy
+
+ENV ROS_DISTRO=jazzy
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        ros-jazzy-turtlesim \
+        ros-jazzy-rosbridge-suite \
+        ros-jazzy-rosapi \
+        ros-jazzy-image-transport \
+        ros-jazzy-compressed-image-transport \
+        ros-jazzy-tf2-ros \
+        python3-colcon-common-extensions \
+    && rm -rf /var/lib/apt/lists/*
+
+# Auto-source the ROS environment in interactive shells.
+RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc
+
+WORKDIR /ros2_ws
+CMD ["/bin/bash"]

@@ -1,0 +1,59 @@
+
+
+╭──────────────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│                         ▄▀▀ ▄▀█ █▀▀ ▀█▀ █▀▄▀█ █▀▀ █▀█                        │
+│                         █▀  █▀█ ▄▄█  █  █ ▀ █ █▄▄ █▀▀                        │
+│                                                                              │
+│                                FastMCP 2.13.0                                │
+│                                                                              │
+│                                                                              │
+│                    🖥  Server name: ros-mcp-server                            │
+│                                                                              │
+│                    📦 Transport:   STDIO                                     │
+│                                                                              │
+│                    📚 Docs:        https://gofastmcp.com                     │
+│                    🚀 Hosting:     https://fastmcp.cloud                     │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+
+[09/18/26 23:21:20] INFO     Starting MCP server 'ros-mcp-server' server.py:1965
+                             with transport 'stdio'                             
+[WebSocket] IP set to 127.0.0.1:9090
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 5.0 seconds
+[Input] Auto-detecting image
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 5.0 seconds
+[Input] Auto-detecting image
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 1.0 seconds
+[WebSocket] Receive error or timeout: Connection timed out
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 1.0 seconds
+[WebSocket] Receive error or timeout: Connection timed out
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 1.0 seconds
+[WebSocket] Receive error or timeout: Connection timed out
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Using timeout of 1.0 seconds
+[WebSocket] Receive error or timeout: Connection timed out
+[WebSocket] Closed
+[WebSocket] Connected (5.0s timeout)
+[WebSocket] Closed
+pose before : {'x': 6.982583045959473, 'y': 11.088476181030273, 'theta': -3.1241722106933594, 'linear_velocity': 0.0, 'angular_velocity': 0.0}
+tools exposed by ros-mcp (31): call_service, cancel_action_goal, connect_to_robot, delete_parameter, detect_ros_version, get_action_details, get_action_status, get_actions, get_message_details, get_node_details, get_nodes, get_parameter, get_parameter_details, get_parameters, get_service_details, get_service_type, get_services, get_topic_details, get_topic_type, get_topics, get_verified_robot_spec, get_verified_robots_list, has_parameter, ping_robots, publish_for_durations, publish_once, send_action_goal, set_parameter, subscribe_for_duration, subscribe_once, view_saved_image
+connect_to_robot -> {"message": "WebSocket IP set to 127.0.0.1:9090", "connectivity_test": {"ip": "127.0.0.1", "port": 9090, "ping": {"success": true, "error": null, "response_time_ms": 0.059}, "port_check": {"open": true, "error": null}, "
+get_topics -> 7 topics
+pose after  : {'x': 7.078365802764893, 'y': 9.478523254394531, 'theta': -1.5113723278045654, 'linear_velocity': 0.0, 'angular_velocity': 0.0}
+delta       : dx=+0.096 dy=-1.610 distance=1.613 dtheta=+1.613
+
+PASS: MCP client drove the simulated robot through ros-mcp

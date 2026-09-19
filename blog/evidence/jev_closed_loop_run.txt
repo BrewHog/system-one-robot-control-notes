@@ -1,0 +1,18 @@
+tick target                wall commit   lin    ang     ms
+--------------------------------------------------------------
+   1 north-east shelf     d=4.32 wall=0.20 urg=1.00    223ms  cmd=(0.00,+2.20) -> d=4.35
+   2 north-east shelf     d=4.35 wall=0.24 urg=1.00    144ms  cmd=(0.00,+2.20) -> d=4.43
+   3 north-east shelf     d=4.44 wall=0.25 urg=1.00    140ms  cmd=(0.00,+2.20) -> d=4.50
+   4 north-east shelf     d=4.50 wall=0.25 urg=1.00    112ms  cmd=(0.00,+2.20) -> d=4.52
+   5 north-east shelf     d=4.53 wall=0.24 urg=1.00    160ms  cmd=(0.00,+2.20) -> d=4.56
+   6 north-east shelf     d=4.56 wall=0.30 urg=1.00    146ms  cmd=(0.00,+2.20) -> d=4.58
+   7 north-east shelf     d=4.58 wall=0.29 urg=1.00    144ms  cmd=(0.00,+2.20) -> d=4.59
+   8 north-east shelf     d=4.59 wall=0.27 urg=1.00    121ms  cmd=(0.00,+2.20) -> d=4.59
+   9 north-east shelf     d=4.59 wall=0.26 urg=1.00    165ms  cmd=(0.00,+2.20) -> d=4.59
+  10 north-east shelf     d=4.59 wall=0.25 urg=1.00    167ms  cmd=(0.00,+2.20) -> d=4.59
+  11 north-east shelf     d=4.59 wall=0.27 urg=1.00    119ms  cmd=(0.00,+2.20) -> d=4.59
+  12 north-east shelf     d=4.59 wall=0.28 urg=1.00    162ms  cmd=(0.00,+2.20) -> d=4.59
+
+JEV latency: n=12 min=112ms median=145ms max=223ms
+decision log: /Users/justin/workspaces/Contoro_and_JEV/logs/jev_run_1789798395.json
+screenshot  : /Users/justin/workspaces/Contoro_and_JEV/screenshots/jev_run.png

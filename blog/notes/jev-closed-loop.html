@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closing the loop: model judgment, code control law — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 04</p>
+<h1>Closing the loop: model judgment, code control law</h1>
+<p class="meta">2026-09-18 &middot; this one failed. The failure is the point.</p>
+
+<h2>The architecture</h2>
+
+<p>Two loops, running at different rates, communicating through one shared variable.</p>
+
+<pre><code>SLOW LOOP (every ~900 ms)
+  read pose -&gt; build structured state -&gt; ask 3 typed questions -&gt; store judgment
+                                                                    |
+FAST LOOP (20 Hz)                                                   v
+  read pose -&gt; compute heading/distance -&gt; combine with stored judgment
+             -&gt; publish cmd_vel -&gt; repeat for the length of the hold</code></pre>
+
+<p>The judge loop owns <em>meaning</em>: which waypoint is the current target, whether a
+wall is a risk, how much speed to commit. The actuation loop owns <em>geometry</em>:
+heading error, distance, damping, arrival tolerance. The judgment is read repeatedly by the
+fast loop but only rewritten every 900&nbsp;ms, so the robot keeps moving on the last
+judgment while the next one is in flight.</p>
+
+<h2>The three questions</h2>
+
+<table>
+<thead><tr><th>Question</th><th>Type</th><th>Answers in run</th></tr></thead>
+<tbody>
+<tr>
+  <td>Which waypoint should it be heading to?</td>
+  <td><code>Choice</code></td>
+  <td>always <em>north-east shelf</em> (consistent, never flip-flopped)</td>
+</tr>
+<tr>
+  <td>Is the robot close enough to a wall that driving forward at full speed risks
+      hitting it within about one second?</td>
+  <td><code>Noul</code></td>
+  <td>0.20 – 0.30 (never crossed the 0.6 intervention threshold)</td>
+</tr>
+<tr>
+  <td>How much of the available speed should the robot use?</td>
+  <td><code>Score</code></td>
+  <td>2.01 – 2.55 (see below)</td>
+</tr>
+</tbody>
+</table>
+
+<p>The target question was stable across all 12 ticks, which is a good sign: the model was
+not thrashing between waypoints. The wall-risk answers were sensibly low and varied with
+position, which is what you want from a boolean judgment.</p>
+
+<h2>The result: 0.00 m of progress</h2>
+
+<p>Twelve ticks. Pose start <code>(5.54, 5.54)</code>, pose end <code>(5.63, 5.11)</code>.
+Net displacement from origin: <strong>0.36&nbsp;m</strong>. From the second tick onward the
+commanded velocity was:</p>
+
+<pre><code>tick 1  cmd=(0.00,+2.20) -&gt; d=4.35
+tick 2  cmd=(0.00,+2.20) -&gt; d=4.43
+tick 3  cmd=(0.00,+2.20) -&gt; d=4.50
+tick 4  cmd=(0.00,+2.20) -&gt; d=4.52
+tick 5  cmd=(0.00,+2.20) -&gt; d=4.56
+tick 6  cmd=(0.00,+2.20) -&gt; d=4.58
+...
+tick 12 cmd=(0.00,+2.20) -&gt; d=4.59</code></pre>
+
+<p>Zero linear velocity, angular velocity pinned at its 2.2&nbsp;rad/s cap, and the
+distance to the target slowly <em>increasing</em>. The robot turned on the spot for eleven
+consecutive seconds. Its pose for the last five ticks is byte-identical —
+<code>(5.63, 5.11)</code> every time — so it ended up wedged and stationary while the loop
+happily kept commanding maximum rotation.</p>
+
+<h2>Diagnosis: not a model bug</h2>
+
+<p>The model did nothing wrong. It picked a sensible target, kept picking it, and reported
+low wall risk. The bug is entirely in my control law, and it is arithmetic:</p>
+
+<pre><code>if abs(error) &gt; 0.5:            # coarse re-orientation deadband (rad)
+    linear = 0.0                # stop translating while turning
+    angular = clamp(2.4 * error, -2.2, 2.2)</code></pre>
+
+<p>With <code>--hold 0.9</code> s and angular saturated at 2.2&nbsp;rad/s, one hold can
+rotate the robot by up to <strong>1.98&nbsp;rad</strong>. The deadband it is trying to enter
+is <strong>0.5&nbsp;rad</strong> wide. The controller therefore overshoots the target
+heading roughly four times over, flips the sign of <code>error</code>, and re-enters the
+same branch pointing the other way. It cannot ever reach the fine-tracking branch, because
+that branch requires an error smaller than what one coarse step can jump across.
+It is a limit cycle, and its signature is exactly what the log shows: constant
+<code>±2.20</code> forever.</p>
+
+<blockquote>
+The gains were individually reasonable. Coarse deadband of 0.5&nbsp;rad and a
+proportional gain of 2.4 are both defensible in isolation. The bug only exists in their
+relationship to the hold duration — which is to say, in the composition of two layers that
+each looked fine on their own.
+</blockquote>
+
+<h2>The fix, tested against the bug</h2>
+
+<p>I wrote a separate harness, <code>scripts/control_law_diagnosis.py</code>, that replays
+the shipped law and a rate-limited variant against the same starting pose, so the
+comparison is controlled rather than anecdotal. The variant keeps the identical
+architecture and changes only the turn envelope:</p>
+
+<pre><code># Shipped: gain 2.4, capped at 2.2 rad/s, deadband 0.5 rad.
+# Fixed:   never command more than half the remaining error per hold,
+#          so the deadband physically cannot be jumped across.
+angular = clamp(0.5 * error / hold, -2.2, 2.2)
+# ...and creep forward while turning, so a target behind the robot
+# cannot produce a rotation-without-translation deadlock.
+linear = min(linear, 0.6)</code></pre>
+
+<table>
+<thead><tr><th>Law</th><th class="num">Start d</th><th class="num">End d</th><th class="num">Closed</th><th class="num">Final window</th><th class="num">Tail err</th></tr></thead>
+<tbody>
+<tr><td>Shipped</td><td class="num">4.32 m</td><td class="num">4.32 m</td><td class="num fail">0.00 m</td><td class="num">0.00 m</td><td class="num">1.11 rad</td></tr>
+<tr><td>Rate-limited</td><td class="num">4.32 m</td><td class="num">2.97 m</td><td class="num pass">1.35 m</td><td class="num fail">−0.46 m</td><td class="num">2.26 rad</td></tr>
+</tbody>
+</table>
+
+<p>Twelve ticks each, identical start pose (<code>scripts/control_law_diagnosis.py</code>,
+published as <a href="../evidence/control_law_diagnosis.json">evidence/control_law_diagnosis.json</a>).
+The shipped law closes exactly nothing — its pose at the end is its pose at the start. The
+rate-limited law closes 1.35&nbsp;m.</p>
+
+<div class="note">
+<p><strong>Do not read that 1.35&nbsp;m as a fix.</strong> The last column is the problem.
+Over the final window of the run the rate-limited robot moved <em>backwards</em> by
+0.46&nbsp;m, and its tail heading error (2.26&nbsp;rad) is worse than the shipped law's
+(1.11&nbsp;rad). It escapes the deadlock and travels, then loses the plot at the end. The
+rate limit trades being stuck for being unstable, which is a different bug rather than no
+bug. My own harness counts the run a failure, and I have left the harness doing so:
+it prints <code>no improvement measured - do not claim a fix</code>, because closing
+distance overall is not the same as controlling the robot.</p>
+</div>
+
+<p>So the honest summary of the fix is: <strong>it resolves the rotation deadlock and
+delivers forward progress, and it introduces a settling failure I have not solved.</strong>
+A proper turn-then-drive controller with an explicit settle phase is the correct next step,
+and I have not built it. I am also not certain the rate limit is even the right shape of
+solution — it may just be delaying the same limit cycle at a longer period.</p>
+
+<h2>What the failure actually establishes</h2>
+
+<p>Three things, and they are the reason I am publishing a failed run rather than quietly
+fixing it and posting a success:</p>
+
+<ol>
+<li><strong>The layers do compose.</strong> State got from the simulator to the model,
+    and a model judgment got back into a live actuation loop. Every hop worked. What broke
+    was my arithmetic, not the integration.</li>
+<li><strong>The model's output was usable.</strong> A stable target choice and a
+    plausible risk judgment arrived in a median of 146&nbsp;ms. Nothing about the failure
+    implicates the System&nbsp;1 layer.</li>
+<li><strong>The architecture localised the bug.</strong> I knew within one run that the
+    fault was in the control law and not the model, because the decision log records every
+    judgment alongside the command it produced. That auditability is a property of the
+    architecture, and it is a real argument for keeping judgment and actuation in separate
+    layers rather than letting one component do both.</li>
+</ol>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="what-did-not-work.html">note 05 — What did not work</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

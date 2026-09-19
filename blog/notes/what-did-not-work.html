@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What did not work — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 05</p>
+<h1>What did not work</h1>
+<p class="meta">2026-09-18 &middot; kept deliberately, because this is the useful page</p>
+
+<p>Every failure below is something I actually hit, with the evidence that identified it.
+I am keeping this page because a log with no failures in it is not a log, it is marketing,
+and because someone else attempting this will hit the same walls.</p>
+
+<h2>1. The control law limit cycle</h2>
+
+<p><span class="fail">Broke:</span> the robot turned on the spot for 12 consecutive ticks
+and closed 0.00&nbsp;m of distance.</p>
+
+<p><span class="pass">Found by:</span> logging the commanded velocity next to the judgment
+that produced it. The tell was <code>cmd=(0.00,+2.20)</code> repeated verbatim — an
+actuator pinned at its saturation limit and never leaving is the signature of a
+limit cycle, not of a hard problem.</p>
+
+<p><span class="warn">Root cause:</span> a 2.2&nbsp;rad/s turn cap held for 0.9&nbsp;s can
+rotate 1.98&nbsp;rad, while the deadband it aims at is 0.5&nbsp;rad wide. Roughly 4&times;
+overshoot, so the fine-tracking branch was unreachable. Full analysis in
+<a href="jev-closed-loop.html">note 04</a>.</p>
+
+<p><span class="warn">Status:</span> the rate limit removes the deadlock and produces
+1.35&nbsp;m of forward progress where there was none, but it introduces a settling failure
+in the last part of the run (the robot moves backwards, and tail heading error is worse
+than the shipped law's). Partially fixed, and the fix has its own defect. Not
+resolved.</p>
+
+<h2>2. The score scale came back outside its defined range</h2>
+
+<p>This is the finding I understand least and trust most, because it is unambiguous in the
+data. The <code>urgency</code> question is defined with four criteria:</p>
+
+<pre><code>Score(
+    instructions="How much of the available speed should the robot use ...?",
+    criteria=["crawl or hold position", "move slowly",
+              "move at moderate speed", "move at full speed"],
+)</code></pre>
+
+<p>I assumed that would map onto 0.0 – 1.0 in four steps. Across 12 ticks the returned
+values were:</p>
+
+<pre><code>2.01  2.07  2.10  2.12  2.13  2.15
+2.17  2.24  2.41  2.55</code></pre>
+
+<p>The range is 2.01 – 2.55. Every single value sits above the maximum I believed the scale
+had, and the spread (0.54) is wider than one step of a four-step scale would be.</p>
+
+<p><span class="fail">Consequence:</span> my code does
+<code>urgency = max(0.0, min(1.0, answers["urgency"]))</code>, so <em>every</em> urgency
+value clamped to exactly 1.0. The linear velocity was therefore commanded at maximum the
+entire run. A channel I designed to modulate speed had, in practice, become a constant.
+I had built a bang-bang controller and believed I had built a proportional one.</p>
+
+<div class="note">
+<p><strong>Why this is the most important entry on this page.</strong> A clamp silently
+converted a mis-scaled model output into a plausible-looking constant. Nothing crashed.
+The log looked fine if you only read the columns I chose to print. I only caught it by
+sorting the raw values. Lesson: when you clamp or normalise a model's output, log the
+<em>raw</em> value too, and check the observed range against the documented range instead
+of assuming the model respects your scale.</p>
+</div>
+
+<p><span class="warn">Open question:</span> I do not yet know whether this is my
+misunderstanding of the <code>Score</code> API, a documented scale I skipped reading, or
+behaviour worth reporting upstream. I am flagging it rather than guessing, and it is the
+first thing I would dig into next.</p>
+
+<h2>3. No collision awareness, so a wedged robot looks like a working one</h2>
+
+<p><span class="fail">Broke:</span> the last five ticks of the run have byte-identical
+poses — <code>(5.63, 5.11)</code> five times — while the loop kept commanding maximum
+rotation and reported no problem.</p>
+
+<p><span class="warn">Root cause:</span> the state I send to the model contains position,
+heading, distance to walls, and distance to waypoints. It does not contain anything about
+whether the robot is actually able to move. So "I am stuck against something" is not
+representable in the model's input, and the control loop had no error signal to react to.</p>
+
+<p><span class="warn">Fix direction:</span> add an achieved-versus-commanded velocity term
+to the state — if the robot is commanded 2.2&nbsp;rad/s and the measured
+<code>angular_velocity</code> is 0.0, that is an unambiguous stuck signal and it does not
+need a model to detect it. This is a good illustration of the division of labour: detecting
+"commanded but not moving" is arithmetic, so it belongs in code, and only the response to
+being stuck should go to the model.</p>
+
+<h2>4. The amd64 simulator image and the silent rosapi failure</h2>
+
+<p><span class="fail">Broke:</span> every connectivity check passed and every
+introspection tool returned empty. ros-mcp connected successfully to a robot it could see
+nothing about.</p>
+
+<p><span class="warn">Root cause:</span> the upstream example image is amd64-only, so on
+Apple Silicon it ran under QEMU with a <code>rosapi</code> that never advertised its
+services. Discovery by service enumeration returns empty, which is indistinguishable from a
+robot with no topics.</p>
+
+<p><span class="pass">Fixed by:</span> a native <code>arm64</code> Jazzy image with
+<code>rosapi</code> launched explicitly. See <a href="ros-mcp-verified.html">note 02</a>.</p>
+
+<p>Technical note for anyone repeating this: <code>linux/arm64</code> is not an
+optimisation here, it is a correctness requirement. Emulation did not merely make it slow,
+it made a service-inventory call return a confident empty answer.</p>
+
+<h2>5. Verifying with a screenshot that proves nothing</h2>
+
+<p><span class="fail">Broke:</span> my first visual verification was a screenshot of the
+simulator window showing a short trail. It was captured mid-motion, cropped to the window
+bounds, and shows a turtle that has clearly moved a little. I could not have told a working
+run from a failed one with it.</p>
+
+<p><span class="pass">Fixed by:</span> reading pose over an independent rosbridge
+connection and comparing before/after numerically. The screenshot became a supplement — nice
+for a human, worthless as evidence. Any claim in these notes rests on a numeric
+before/after, never on an image.</p>
+
+<h2>Things I have not tested at all</h2>
+
+<p>Listed so the boundary of what I know is explicit:</p>
+
+<ul>
+<li>No frontier-LLM baseline in the same loop. I have no measurement of how much slower
+    the System&nbsp;2 approach would actually be here, which is the comparison that would
+    make the latency argument concrete.</li>
+<li>No real hardware. Everything is <code>turtlesim</code>, which has no dynamics, no
+    sensor noise, no actuator lag and no safety surface.</li>
+<li>No test of what happens when the API is slow or unavailable mid-motion. The control
+    loop has no fallback if a judgment never arrives.</li>
+<li>No notion of safety at all. A reflex layer with write access to
+    <code>cmd_vel</code> and no independent limiter is not something to put near hardware,
+    and I would not.</li>
+<li>Small samples throughout — 12 ticks, 10 ticks. Enough to find a limit cycle, nowhere
+    near enough for a latency claim.</li>
+</ul>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="reproduce.html">note 06 — Reproducing all of this</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

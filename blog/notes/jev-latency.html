@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Measuring the System 1 round trip — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 03</p>
+<h1>Measuring the System 1 round trip</h1>
+<p class="meta">2026-09-18 &middot; live API, not a simulation of one</p>
+
+<p>The whole thesis rests on one number. If a System&nbsp;1 judgment takes as long as a
+frontier model's, there is no point to any of this. So this measurement came before any
+architecture work.</p>
+
+<h2>What was measured</h2>
+
+<p>Each call sends a small structured robot state and three typed questions, and measures
+wall-clock time from the call to the parsed response. Nothing is cached or batched: every
+tick is a fresh round trip, which is the pessimistic and honest case.</p>
+
+<pre><code>response = client.system_one(
+    state=state,
+    questions={
+        "target":    Choice(instructions="Which waypoint should it be heading to?", ...),
+        "wall_risk": Noul(instructions="Is the robot close enough to a wall that driving
+                                       forward at full speed risks hitting it ...?"),
+        "urgency":   Score(instructions="How much of the available speed should the robot
+                                        use ...?",
+                           criteria=["crawl or hold position", "move slowly",
+                                     "move at moderate speed", "move at full speed"]),
+    },
+)</code></pre>
+
+<p>The three question types cover the three shapes a reflex judgment takes: a boolean
+(<code>Noul</code>), a pick-from-fixed-set (<code>Choice</code>), and a position on a
+defined scale (<code>Score</code>).</p>
+
+<h2>Results</h2>
+
+<p>Twelve consecutive ticks from the live closed-loop run, in milliseconds:</p>
+
+<pre><code>112.2  119.2  121.1  139.6  143.7  144.2
+146.4  160.4  161.7  165.4  166.9  223.2</code></pre>
+
+<table>
+<thead><tr><th>Statistic</th><th class="num">Value (ms)</th></tr></thead>
+<tbody>
+<tr><td>n</td><td class="num">12</td></tr>
+<tr><td>min</td><td class="num">112.2</td></tr>
+<tr><td>median</td><td class="num">146.4</td></tr>
+<tr><td>mean</td><td class="num">150.3</td></tr>
+<tr><td>p90</td><td class="num">166.9</td></tr>
+<tr><td>max</td><td class="num">223.2</td></tr>
+<tr><td>std dev</td><td class="num">28.2</td></tr>
+</tbody>
+</table>
+
+<p>A single-question call, measured separately during setup, returned in
+<strong>252&nbsp;ms</strong> — slower than the three-question median, which is worth
+flagging rather than hiding: my first measurement was the <em>worst</em> one, and the
+minimum of a small sample is not the number to quote. Treat the median as indicative of
+a warm connection, not as a guaranteed latency.</p>
+
+<h2>What this does and does not support</h2>
+
+<p><strong>Supported:</strong> a judgment round trip around 150&nbsp;ms is fast enough to
+sit inside a robot control loop. At that rate a reflex decision can be refreshed several
+times a second, which is the timescale that matters for "is something about to go wrong."
+The jitter (std dev 28&nbsp;ms, max 223&nbsp;ms) is small relative to the deliberate
+0.9&nbsp;s spacing between judgments in my control loop.</p>
+
+<p><strong>Not supported:</strong> anything about real-time guarantees. This is a network
+API, so the tail is governed by the network, and my tail here is only 12 samples deep. A
+single 223&nbsp;ms outlier in a control loop with a hard deadline is a different kind of
+problem from a 223&nbsp;ms outlier in a loop that re-plans a few times a second, and I have
+not tested the former.</p>
+
+<div class="note">
+<p><strong>A structural consequence I did not think through at the time.</strong> Because
+the judgment takes ~150&nbsp;ms and arrives asynchronously, the reflex loop cannot be
+"ask, then act." It has to be "act continuously on the last judgment, and refresh in the
+background." That is exactly how biological reflexes work, and it is the reason the code
+in <a href="jev-closed-loop.html">note 04</a> separates a slow judgment loop from a fast
+actuation loop. Realising this was the main architectural insight of the week.</p>
+</div>
+
+<h2>Latency budget</h2>
+
+<p>For the loop as actually built, one tick costs roughly:</p>
+
+<table>
+<thead><tr><th>Stage</th><th class="num">Cost</th></tr></thead>
+<tbody>
+<tr><td>Pose read over rosbridge</td><td class="num">&lt; 5&nbsp;ms</td></tr>
+<tr><td>System 1 judgment (3 questions)</td><td class="num">~146&nbsp;ms median</td></tr>
+<tr><td>Actuation hold at 20&nbsp;Hz</td><td class="num">900&nbsp;ms (deliberate)</td></tr>
+<tr><td>Command publish</td><td class="num">&lt; 5&nbsp;ms</td></tr>
+</tbody>
+</table>
+
+<p>The model is not the bottleneck. The deliberate 900&nbsp;ms hold dominates the tick
+budget, and I chose it: re-judging faster than the robot can physically respond just burns
+API calls. The model being ~6&times; faster than the loop period it feeds is exactly the
+headroom the architecture needs, and it means the reflex layer has room to grow into a
+tighter loop than the one I built.</p>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="jev-closed-loop.html">note 04 — Closing the loop</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

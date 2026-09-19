@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On publication, priority, and provable authorship — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 07</p>
+<h1>On publication, priority, and provable authorship</h1>
+<p class="meta">2026-09-18 &middot; about the record itself, not the robotics</p>
+
+<p>This page explains an unusual choice, so that nobody has to guess at my intent: this
+site is <strong>public but deliberately not indexed</strong>. It is meant to be citable and
+archivable by anyone who has the URL, and not surfaced by a general web search.</p>
+
+<h2>Why publish at all</h2>
+
+<p>I am working on an idea I did not invent. The System&nbsp;1 / System&nbsp;2 split for
+robot control is openly discussed, and there are well-funded teams on it. I make no claim
+to the concept.</p>
+
+<p>What I do want is a dated, checkable record of my own work on it — the architecture I
+chose, the numbers I measured, and the bugs I found. If this line of work becomes valuable
+later, I want the record of when and how I approached it to exist somewhere other than my
+own laptop, and to be verifiable by a third party without taking my word for anything.</p>
+
+<h2>Why not indexed</h2>
+
+<p>Two goals that sound contradictory, and are worth separating:</p>
+
+<ul>
+<li><strong>Verifiable</strong> means anyone with the URL can fetch it, hash it, and
+    confirm it has not changed. That requires it to be genuinely public.</li>
+<li><strong>Not discoverable</strong> means a stranger searching "System 1 robot control"
+    should not land here. That requires not being in a search index.</li>
+</ul>
+
+<p>These are compatible, because indexing and fetching are different things. A page can be
+freely fetchable while carrying <code>noindex</code> directives and a restrictive
+<code>robots.txt</code>. Honest caveats, though, which matter more than the mechanism:</p>
+
+<ul>
+<li><strong>This is a request, not a guarantee.</strong> <code>robots.txt</code> and
+    <code>noindex</code> are directives that well-behaved crawlers honour. They are not
+    access control and cannot stop anyone determined.</li>
+<li><strong>Archival crawlers are explicitly invited</strong>, by design. Preserving a copy
+    is the point of this exercise, so <code>robots.txt</code> allows
+    <code>ia_archiver</code>, <code>archive.org_bot</code>, <code>CCBot</code> and
+    friends while disallowing everyone else.</li>
+<li><strong>Those two facts interact.</strong> Once an archiver stores a copy, that copy is
+    itself a public, indexed page. Archiving for durability and staying out of search
+    results are in genuine tension, and I chose durability. The archiver's copy is likely
+    to be more findable than the original.</li>
+</ul>
+
+<div class="note">
+<p>If your actual goal is that nobody ever finds it, do not publish it. Every public
+durability mechanism — archives, repositories, timestamps — is discoverable by design.
+What I can offer instead is <em>proof</em>, which is a stronger and more durable thing than
+obscurity, and which is what the rest of this page is about.</p>
+</div>
+
+<h2>How the timestamps work</h2>
+
+<p>Four independent layers, deliberately redundant, because any single one of them can fail
+or be dismissed:</p>
+
+<table>
+<thead><tr><th>Layer</th><th>What it establishes</th><th>Depends on</th></tr></thead>
+<tbody>
+<tr>
+  <td><strong>SHA-256 manifest</strong><br><code>manifest.txt</code></td>
+  <td>Exactly which bytes were published. Anyone can re-hash and compare.</td>
+  <td>Nothing — pure arithmetic.</td>
+</tr>
+<tr>
+  <td><strong>OpenTimestamps</strong><br><code>manifest.txt.ots</code></td>
+  <td>Those exact bytes existed at or before a specific Bitcoin block height. Verifiable
+      offline, forever.</td>
+  <td>The Bitcoin chain, which is not going away.</td>
+</tr>
+<tr>
+  <td><strong>RFC 3161 token</strong><br><code>manifest.tsr</code></td>
+  <td>An independent timestamping authority signed for the manifest hash at a wall-clock
+      time.</td>
+  <td>That authority's CA remaining verifiable.</td>
+</tr>
+<tr>
+  <td><strong>Git commit history</strong></td>
+  <td>A second, differently-administered record of the same content and time.</td>
+  <td>The hosting platform.</td>
+</tr>
+</tbody>
+</table>
+
+<p>The important property is that the Bitcoin anchor does not require trusting me, the
+hosting platform, the timestamp authority, or TypeSafe. It requires only that the
+blockchain is what it is. That is why it is the backbone of the bundle and the others are
+corroboration.</p>
+
+<h2>How to verify, concretely</h2>
+
+<pre><code># 1. Do the files match what was published?
+shasum -a 256 -c manifest.txt
+
+# 2. Is the manifest anchored in Bitcoin?
+pip install opentimestamps-client
+ots verify manifest.txt.ots
+
+# 3. Inspect the RFC 3161 token
+openssl ts -reply -in manifest.tsr -text</code></pre>
+
+<p>The <code>ots verify</code> output names the Bitcoin block the manifest is anchored in.
+Anyone can independently confirm that block exists and when it was mined. Nothing in that
+chain passes through me.</p>
+
+<h2>Attribution, precisely</h2>
+
+<p>If you use or build on this, the credit I am asking for is specific and small:</p>
+
+<ul>
+<li><strong>Mine:</strong> the control architecture, the test harnesses, the simulator
+    image work, the measurements, the diagnosis of the control-law limit cycle, and the
+    documentation. That is what the manifest hashes.</li>
+<li><strong>Not mine:</strong> <code>ros-mcp-server</code> (Contoro),
+    ROS&nbsp;2 and <code>turtlesim</code> (Open Robotics / the ROS community), the
+    System&nbsp;1 model (TypeSafe), and OpenTimestamps. All referenced and credited on the
+    <a href="../index.html">front page</a>. The System&nbsp;1 / System&nbsp;2 framing for
+    robotics is a widely discussed idea and I claim no ownership of it.</li>
+</ul>
+
+<p>I am not trying to prevent anyone from working on this. I am trying to make it
+impossible to claim this particular work was done later, or by someone else, without
+contradicting a Bitcoin block. That is a modest and achievable goal, and it is the whole
+reason this site exists in this strange half-public form.</p>
+
+<p class="meta" style="margin-top:2rem">
+Written by Justin, September 2026 &middot;
+<a href="https://github.com/BrewHog">github.com/BrewHog</a>
+</p>
+
+<p class="nav" style="margin-top:3rem">
+<a href="../index.html">&larr; Back to Working Notes</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>

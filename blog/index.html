@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>System 1 Robot Control — Working Notes</title>
+<meta name="description" content="Working notes on coupling a System 1 classifier model to a ROS 2 robot through an MCP server.">
+<!-- Deliberately not indexed. See /notes/on-publication.html for why, and for how to verify authorship. -->
+<meta name="robots" content="noindex, nofollow, noarchive">
+<meta name="googlebot" content="noindex, nofollow">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+
+<h1>Coupling a System&nbsp;1 model to a real robot control loop</h1>
+<p class="sub">Working notes. Raw logs, measured latencies, and the code that produced them.</p>
+
+<p class="meta">
+Started 2026-09-18 &middot; Last updated 2026-09-18 &middot; Justin &middot;
+<a href="https://github.com/BrewHog">github.com/BrewHog</a>
+</p>
+
+<h2>What this is</h2>
+
+<p>These are my lab notes from a line of experiments I started in September 2026. The
+question I am chasing is narrow and specific:</p>
+
+<blockquote>
+Can a System&nbsp;1 model — one that returns a typed judgment in a couple hundred
+milliseconds rather than a paragraph of reasoning in several seconds — drive a robot
+control loop that a frontier LLM is simply too slow to close? And if so, what is the
+correct division of labour between the model and ordinary code?
+</blockquote>
+
+<p>I am not claiming this is a new idea. The System&nbsp;1 / System&nbsp;2 split for
+robotics is talked about openly, and people far better resourced than me are working on
+it. What I am doing is publishing a dated, reproducible record of my own work on it —
+the architecture I picked, the numbers I measured, and the failures — so that the
+record of when I did it exists independently of me.</p>
+
+<p>Three things had to be true before this was worth writing down, and all three are now
+demonstrated on the machine this was written on:</p>
+
+<ol>
+<li>An LLM client can drive a simulated robot through an MCP server, end to end.</li>
+<li>A System&nbsp;1 model answers typed robotics questions over a live API, fast enough
+to sit inside a control loop.</li>
+<li>The two compose — the model's judgment changes the robot's behaviour, and the
+decision log proves which judgment caused which movement.</li>
+</ol>
+
+<h2>Results as of 2026-09-18</h2>
+
+<table>
+<thead>
+<tr><th>Layer</th><th>What was checked</th><th>Result</th></tr>
+</thead>
+<tbody>
+<tr>
+  <td>Simulator</td>
+  <td>ROS&nbsp;2 Jazzy turtlesim in Docker, reached over rosbridge on :9090</td>
+  <td class="pass">reachable — 7 topics, 57 services, 3 nodes</td>
+</tr>
+<tr>
+  <td>MCP transport</td>
+  <td>MCP stdio client &rarr; <code>ros-mcp</code> &rarr; rosbridge &rarr; <code>/turtle1/cmd_vel</code>, motion confirmed by independent pose read</td>
+  <td class="pass">PASS — 31 tools exposed, displacement 1.61&nbsp;m</td>
+</tr>
+<tr>
+  <td>System&nbsp;1 API</td>
+  <td>Typed questions (<code>Noul</code> / <code>Choice</code> / <code>Score</code>) against a live credential</td>
+  <td class="pass">live — 252&nbsp;ms round trip</td>
+</tr>
+<tr>
+  <td>Closed loop</td>
+  <td>Model judgment &rarr; control law &rarr; continuous actuation, 12 ticks</td>
+  <td class="fail">FAIL — robot spun in place, 0.00&nbsp;m net progress</td>
+</tr>
+</tbody>
+</table>
+
+<div class="note">
+<p><strong>The headline result is a failure, and I am leaving it in.</strong> The
+individual layers all work: the simulator answers, MCP drives it, and the System&nbsp;1
+model returns a usable judgment in a median of 146&nbsp;ms. But when I wired them into a
+closed loop, the robot turned on the spot for the entire trial and made zero net progress.
+The cause is a bug in my control law, not in the model — and finding that out is the most
+useful thing this experiment produced. Details in
+<a href="notes/jev-closed-loop.html">note 04</a> and
+<a href="notes/what-did-not-work.html">note 05</a>.</p>
+</div>
+
+<h2>Notes</h2>
+
+<ul class="postlist">
+<li>
+  <span class="tag">01</span><span class="t"><a href="notes/system-one-and-system-two.html">System 1 and System 2, and why robotics needs both</a></span><br>
+  <span class="meta">The thesis. Reflexes and deliberation are different jobs; using one model for both is why robot loops feel either stupid or slow.</span>
+</li>
+<li>
+  <span class="tag">02</span><span class="t"><a href="notes/ros-mcp-verified.html">Getting a simulated robot under MCP control</a></span><br>
+  <span class="meta">Docker, rosbridge, and the ARM64 rosapi discovery problem that cost me an evening.</span>
+</li>
+<li>
+  <span class="tag">03</span><span class="t"><a href="notes/jev-latency.html">Measuring the System 1 round trip</a></span><br>
+  <span class="meta">Does the number actually support putting it in a control loop? Raw measurements, including the tail.</span>
+</li>
+<li>
+  <span class="tag">04</span><span class="t"><a href="notes/jev-closed-loop.html">Closing the loop: model judgment, code control law</a></span><br>
+  <span class="meta">What the model decides, what code decides, and why mixing them up makes the robot spin in place.</span>
+</li>
+<li>
+  <span class="tag">05</span><span class="t"><a href="notes/what-did-not-work.html">What did not work</a></span><br>
+  <span class="meta">The failures, kept deliberately. This is the most useful page here.</span>
+</li>
+<li>
+  <span class="tag">06</span><span class="t"><a href="notes/reproduce.html">Reproducing all of this</a></span><br>
+  <span class="meta">Exact commands, in order, from a clean machine.</span>
+</li>
+<li>
+  <span class="tag">07</span><span class="t"><a href="notes/on-publication.html">On publication, priority, and provable authorship</a></span><br>
+  <span class="meta">Why this site is public but deliberately not indexed, and how the timestamps work.</span>
+</li>
+</ul>
+
+<h2>Repositories and prior work</h2>
+
+<p>This work stands on other people's open source, and I want the attribution to be
+unambiguous:</p>
+
+<ul>
+<li><strong><a href="https://github.com/robotmcp/ros-mcp-server">ros-mcp-server</a></strong> —
+the MCP server that exposes ROS topics and services as tools. Contoro's project; I run it
+unmodified and drive it from my own client code.</li>
+<li><strong>ROS&nbsp;2 Jazzy + turtlesim</strong> — the simulated robot body.</li>
+<li><strong>TypeSafe / JEV</strong> — the System&nbsp;1 model. Documentation at
+<a href="https://docs.typesafe.ai/introduction">docs.typesafe.ai</a>. I am an early-access
+user; everything I publish here is my own measurement work, not their material.</li>
+<li><strong>OpenTimestamps</strong> — Bitcoin-anchored proof that these files existed when
+I say they did.</li>
+</ul>
+
+<h2>What I am not claiming</h2>
+
+<p>Stated plainly, because overclaiming is how independent work loses credibility:</p>
+
+<ul>
+<li>This is <em>turtlesim</em>, a 2D pedagogical simulator. It is not a real robot, and
+nothing here proves anything about real-world dynamics, sensor noise, or safety.</li>
+<li>My sample sizes are small — tens of ticks, not thousands. The latency figures are
+indicative, not a benchmark.</li>
+<li>I have not compared against a frontier LLM baseline in the same loop yet. That is the
+obvious next experiment and it is not done.</li>
+<li>The architecture I landed on is one reasonable choice among several, not a discovered
+optimum.</li>
+</ul>
+
+<div class="foot">
+<p><strong>Evidence.</strong> Every claim above rests on a file in
+<a href="evidence/">evidence/</a> — the per-tick decision log with raw model answers, the
+closed-loop run log, and the control-law diagnosis. Hashes for all of them are in the
+<a href="manifest.txt">SHA-256 manifest</a>.</p>
+<p><strong>Proof of time.</strong> The manifest is anchored in the Bitcoin blockchain via
+<a href="https://opentimestamps.org">OpenTimestamps</a> and independently signed by a
+commercial RFC&nbsp;3161 timestamp authority. Full verification steps — hash checks, the
+Bitcoin anchor, the TSA token, and the arithmetic behind the headline claim — are on the
+<a href="verify.html">verify this record</a> page.</p>
+<p>Written by Justin (<a href="https://github.com/BrewHog">BrewHog</a>), September 2026.
+Publicly readable, deliberately not indexed — the reasoning is in note 07.</p>
+</div>
+
+</div>
+</body>
+</html>

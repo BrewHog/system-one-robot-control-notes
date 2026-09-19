@@ -1,0 +1,48 @@
+# SHA-256 manifest - Working Notes on System 1 robot control
+# Generated: 2026-09-19T06:23:33Z
+# Author: Justin (github.com/BrewHog)
+#
+# Verify from this directory:
+#     shasum -a 256 -c manifest.txt    (macOS)
+#     sha256sum -c manifest.txt        (Linux)
+#
+# manifest.txt is not listed inside itself. It is anchored directly:
+#   manifest.txt.ots  - OpenTimestamps proof, Bitcoin-blockchain backed
+#   manifest.tsr      - RFC 3161 token from a commercial timestamp authority
+# Both cover this file's own SHA-256, so verify them as described in
+# verify.html rather than looking for them in the list below.
+# --- PUBLISHED SITE ---
+72d81a17d9fa182491a750a03ca9fb94199c971502efb7719bf6bddd5ddbeb6a  index.html
+a0103570f22ff01e7179259fafec1fb925e7d2770d9586ccd72fadfdf2edb9df  style.css
+0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
+e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
+61df79cf86ff91c2ccecba197575671ce45fdfb0c670e4bb3b848e9cb24b487c  verify.html
+d352daeba1c9257b2af8f1e609a4cdcf7f3cd50edf77a84a2b8e88a0e328c49a  evidence/jev_run_1789798395.json
+852dd35576f2de169505570dea24341006f6511e49b46519b0594d7c3e64e631  evidence/jev_closed_loop_run.txt
+ad08325c2f2a6ce3f268e22d2b355a5ee52756f4f008594c807e58cd0499b8fe  evidence/control_law_diagnosis.json
+d6b39d9f6dda842129bc55f678d48cb82f41ffceb6df029965637965ce99f54d  evidence/mcp_e2e_test_output.txt
+d4d81fc80a7f84f20f5efad480150081e11b7b030961ade2a033d79d0a8458f2  evidence/turtle_verify.png
+b8d7809a7c7d772172f89c97c3e4ff21e20af483670142c89c2b2a1ac5a1a7d1  notes/system-one-and-system-two.html
+8edbbfff6bb6e92c7a33c5a72e1c7d99ef11070577b387a0585fc6d5448cad0f  notes/ros-mcp-verified.html
+5de3b5635ce3917b69c7f7aafd227d987d9a7171030ff73dc2725a042a8d8ba5  notes/jev-latency.html
+051242c0ac142a23bfc85c9b14abda332531be53c0ea573dac471c18469efc33  notes/jev-closed-loop.html
+6d4241aa145e59a80675793f4b5dda5563125ea826759afbb03b6ef21674e846  notes/what-did-not-work.html
+28e31a5ffa62bae692fb6129145cc8164702e982a042a9db4d7657dce60d17b2  notes/reproduce.html
+7a0964212aea067d46edbd155e398932e11ea20f92bd98d5499d4c663b66de1a  notes/on-publication.html
+# --- SOURCE THAT PRODUCED THE EVIDENCE ---
+d5ba36dbd8966930ec0280ee70fea8eef6f9e6c47cc4cee30a9b272102485f26  src/scripts/jev_controller.py
+f1deb64995087e5684846d79aa1a2e25f0ec1768194b8d02482e76ee16be28c4  src/scripts/control_law_diagnosis.py
+3a5d17c3fd6ba344b2874dd9af4e76a0b2c5a3b209f964960b92beea8332bba1  src/scripts/jev_smoke.py
+0655237dbf67a3e333b9b32cac635c5c3f4cbfb056d3d55807b4b70e70789e0f  src/scripts/jev_discriminate.py
+d06f9665a81cfc38243d5eaabd1c7ad2a5cfb3933bd955f7b066989c2c71a3d5  src/scripts/mcp_e2e_test.py
+2b33c3237907a074209c4373c008619c9252af296199beb318ebd92e5e3d21cb  src/scripts/probe_rosbridge.py
+28ecbf7611f4649f21c2aaaeb1f27d783fe47eb98ce12952af831016d97cb00b  src/scripts/sim_demo_motion.py
+9a754a63b07612636fda69118b8cb65ac4dac370b2756fb57bc0ad32b789ec93  src/scripts/start_sim.sh
+0d7c07cc658cc6909c60ff3b7de83d3a0e95dad5250d1d8773c4ae6cc782a8d8  src/sim/Dockerfile.sim
+6f214dc119a6f83c7b7877dac69d67b5f4a7de3aba0da93470da8d967a1dfbbf  src/sim/launch_turtlesim.launch.py
+# --- THIRD-PARTY DEPENDENCY (not mine, not hashed) ---
+# ros-mcp-server revision: f1c023bb5570794ee4d935aa2c7c06e025810952
+# https://github.com/robotmcp/ros-mcp-server - Contoro
+# ROS 2 Jazzy + turtlesim : Open Robotics / ROS community
+# System 1 model (JEV)    : TypeSafe - https://docs.typesafe.ai/introduction
+# OpenTimestamps          : https://opentimestamps.org

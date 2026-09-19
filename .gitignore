@@ -1,0 +1,28 @@
+# Python / tooling
+.venv/
+.uvcache/
+.uvpython/
+__pycache__/
+*.pyc
+.venv
+
+# Third-party checkout: ros-mcp-server is Contoro's, pinned by commit in
+# blog/manifest.txt rather than vendored. See the manifest attribution block.
+vendor/
+
+# Secrets. .env holds a live API key and must never be committed.
+.env
+*.key
+secrets*
+
+# Private scratch notes (contains a live API key). Not published.
+IDEA.md
+
+# Run outputs are copied into blog/evidence/ deliberately and selectively;
+# this is the live scratch directory, which also contains runs by other
+# sessions on this machine.
+logs/
+
+# Local editor noise
+.DS_Store
+*.swp

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reproducing all of this — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 06</p>
+<h1>Reproducing all of this</h1>
+<p class="meta">2026-09-18 &middot; in order, from a clean machine</p>
+
+<p>Every number in these notes came from the commands below. If you want to check my
+work, this is the whole path. Nothing here needs my API key except the System&nbsp;1
+steps, and those are clearly marked.</p>
+
+<h2>Requirements</h2>
+
+<table>
+<thead><tr><th>Need</th><th>Used here</th></tr></thead>
+<tbody>
+<tr><td>Docker, running</td><td>for the simulated robot</td></tr>
+<tr><td>Python 3.11+</td><td>a venv with <code>websocket-client</code>, <code>mcp</code></td></tr>
+<tr><td><code>ros-mcp-server</code></td><td><a href="https://github.com/robotmcp/ros-mcp-server">github.com/robotmcp/ros-mcp-server</a></td></tr>
+<tr><td>A System&nbsp;1 API key</td><td>optional — only for notes 03 and 04</td></tr>
+</tbody>
+</table>
+
+<h2>1. Bring up the simulated robot</h2>
+
+<pre><code>cd /Users/justin/workspaces/Contoro_and_JEV
+./scripts/start_sim.sh</code></pre>
+
+<p>First run builds a native <code>arm64</code> ROS 2 Jazzy image. The script frees ports,
+starts the container, and waits for rosbridge. It prints a VNC address
+(<code>vnc://localhost:5900</code>) if you want to watch the robot, which is pleasant but,
+as <a href="what-did-not-work.html">note 05</a> explains, not evidence of anything.</p>
+
+<h2>2. Prove the simulator is reachable</h2>
+
+<pre><code>.venv/bin/python scripts/probe_rosbridge.py --port 9090</code></pre>
+
+<p>Expected: ROS version 2 (jazzy), 7 topics, &gt;50 services, and
+<code>OK: simulator is reachable</code>. If topics come back empty, you have the
+<code>rosapi</code> discovery problem from note 05.</p>
+
+<h2>3. Prove an MCP client can drive it</h2>
+
+<pre><code>.venv/bin/python scripts/mcp_e2e_test.py --port 9090</code></pre>
+
+<p>Spawns <code>ros-mcp</code> over stdio, lists its tools, drives the turtle, and verifies
+motion through a second independent rosbridge connection. Expected: 31 tools and
+<code>PASS: MCP client drove the simulated robot through ros-mcp</code>. No API key
+needed — this is the pure transport check.</p>
+
+<h2>4. Measure the System 1 round trip <span class="meta">(needs a key)</span></h2>
+
+<pre><code>export TYPESAFE_API_KEY=...
+.venv/bin/python scripts/jev_smoke.py</code></pre>
+
+<p>Prints the wall-clock round trip for a three-question call. My measurement was
+252&nbsp;ms on a cold connection; see <a href="jev-latency.html">note 03</a> for why that
+number is the pessimistic end.</p>
+
+<h2>5. Run the open loop, to confirm state actually reaches the model</h2>
+
+<pre><code>.venv/bin/python scripts/jev_discriminate.py</code></pre>
+
+<p>Asks the same question against deliberately opposite robot states and reports whether
+the answers separate. This exists because a System&nbsp;1 layer that returns the same
+answer regardless of input would look fine in a control loop while doing nothing useful —
+and it is the cheapest possible check against that.</p>
+
+<h2>6. Run the closed loop</h2>
+
+<pre><code># scripted baseline, no model in the loop
+.venv/bin/python scripts/jev_controller.py --ticks 12 --no-jev
+
+# with the System 1 model judging each tick
+.venv/bin/python scripts/jev_controller.py --ticks 12 --hold 0.9</code></pre>
+
+<p>Each run writes a decision log to <code>logs/jev_run_&lt;epoch&gt;.json</code> containing,
+per tick: the pose, the full structured state sent to the model, the raw answers, and the
+resulting command. That log is what made the diagnosis in note 04 possible, so it is worth
+reading rather than discarding.</p>
+
+<p><span class="warn">Expect the shipped control law to limit-cycle.</span> That is the
+reproducible result, not a setup error on your side.</p>
+
+<h2>7. Reproduce the control-law diagnosis</h2>
+
+<pre><code>.venv/bin/python scripts/control_law_diagnosis.py --ticks 10 --hold 0.9</code></pre>
+
+<p>Resets the simulator to a known pose, replays the shipped control law and a rate-limited
+variant against the identical start, and writes
+<code>logs/control_law_diagnosis.json</code> with a per-step error and distance trace.</p>
+
+<div class="note">
+<p>That script now refuses to print a success verdict unless the variant shows sustained
+net progress the shipped law did not. I added that guard after it initially reported a fix
+on the strength of total displacement alone, while the heading error was still oscillating.
+Changing a test so that it is allowed to fail is the part of this project I would most
+recommend copying.</p>
+</div>
+
+<h2>Verifying the artifacts themselves</h2>
+
+<p>To confirm these files are the ones I published, check them against the manifest:</p>
+
+<pre><code>cd blog
+sha256sum -c manifest.txt      # Linux
+shasum -a 256 -c manifest.txt  # macOS</code></pre>
+
+<p>Every file listed is hashed. <code>manifest.txt.ots</code> is an OpenTimestamps
+proof anchoring the manifest to the Bitcoin blockchain, and <code>manifest.tsr</code> is an
+independent RFC&nbsp;3161 timestamp token. See
+<a href="on-publication.html">note 07</a> for what those prove and what they do not.</p>
+
+<h2>What you cannot reproduce</h2>
+
+<p>Stated so the limits are clear:</p>
+
+<ul>
+<li>My exact latency figures. They are network-dependent and will differ on your machine
+    and at your distance from the API.</li>
+<li><code>turtlesim</code>'s exact trajectory, which depends on real-time scheduling and
+    will vary run to run. The <em>failure</em> is reproducible; the specific centimetres
+    are not.</li>
+<li>The timestamps. Those are the point of the proof bundle and are tied to one moment.</li>
+</ul>
+
+<p class="nav" style="margin-top:3rem">
+Next: <a href="on-publication.html">note 07 — On publication, priority, and provable authorship</a>
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026.</p>
+</div>
+
+</div>
+</body>
+</html>
