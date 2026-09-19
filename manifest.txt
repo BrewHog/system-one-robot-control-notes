@@ -1,5 +1,5 @@
 # SHA-256 manifest - Working Notes on System 1 robot control
-# Generated: 2026-09-19T06:45:00Z
+# Generated: 2026-09-19T06:43:02Z
 # Author: Justin (github.com/BrewHog)
 #
 # Verify from this directory:
@@ -12,7 +12,7 @@
 # Both cover this file's own SHA-256, so verify them as described in
 # verify.html rather than looking for them in the list below.
 # --- PUBLISHED SITE ---
-db623f3325c17e48b6bcb0c10dc0e29900ad2af0926a2bacfdf32b828b3355bd  index.html
+02163a31e2fcbcd4c1ef3eabdb37f6922544c5be069defa14a5385f1cbf8b103  index.html
 bd2a2faf5eecd8baea68d998066690ca379b3ad13f7b1d1653e7f69aed4da7e1  style.css
 0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
