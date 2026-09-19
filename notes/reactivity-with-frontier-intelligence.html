@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fast judgment and slow thought: what actually changed — Working Notes</title>
+<meta name="meta" name="description" content="Why typed-judgment models change what is possible in robot control, and what previous attempts could not do.">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 08</p>
+<h1>Fast judgment and slow thought: what actually changed</h1>
+<p class="sub">On System 1 models, frontier intelligence, and the claim that reactive semantic
+control is newly possible.</p>
+<p class="meta">2026-09-19 &middot; Justin (<a href="https://github.com/BrewHog">BrewHog</a>)</p>
+
+<p>I have spent the last stretch of work trying to put a fast model inside a robot control
+loop. This note is where I try to say clearly what I think is genuinely new about the models
+that make that possible — and, at more length, what is <em>not</em> new, because the loose
+version of this argument is wrong and I would rather state the defensible version myself
+than have someone else dismantle the indefensible one.</p>
+
+<h2>The claim</h2>
+
+<p>Stated as carefully as I can manage:</p>
+
+<blockquote>
+For the first time, a robot's low-latency reactive layer can be given <em>judgments written
+in natural language</em> rather than thresholds written in code — and those judgments can be
+replaced at runtime without retraining the controller or changing the control law.
+</blockquote>
+
+<p>That is the claim I will defend. Not "reactive robots are new." Not "AI can now play
+video games fast." Those are old news and I will say so in detail below. The new thing is
+narrower and, I think, more consequential: the <em>interface</em> to the fast layer changed
+from arithmetic to language.</p>
+
+<h2>Two things that got confused</h2>
+
+<p>Two classes of model are being described as though they were one, and the confusion
+matters because they solve different problems in a robot.</p>
+
+<h3>Typed-judgment models: Jev</h3>
+
+<p>TypeSafe's <a href="https://docs.typesafe.ai/concepts/system-one">System One</a> models,
+of which Jev is the flagship, evaluate a state and return <em>typed answers and
+probabilities</em>. You define the answer space using three primitives:</p>
+
+<table>
+<thead><tr><th>Primitive</th><th>Question shape</th><th>Example</th></tr></thead>
+<tbody>
+<tr><td><code>Noul</code></td><td>whether a condition holds</td><td>"is a wall close enough to matter?" → <code>0.95</code></td></tr>
+<tr><td><code>Choice</code></td><td>one of a defined set</td><td>"which waypoint should it head to?" → <code>"north-east shelf"</code></td></tr>
+<tr><td><code>Score</code></td><td>position on an ordered scale</td><td>"how much speed should it commit?" → <code>2.1</code> of 3</td></tr>
+</tbody>
+</table>
+
+<p>The important properties are that the output is constrained by construction — code
+consumes it directly with no parsing and no prose to interpret — and that answers carry a
+<code>confidence</code> value, so code can decide when to act and when to escalate. These
+models are trained for calibrated decisions, meaning their probabilities are optimised
+against outcomes rather than being a side effect of generation.</p>
+
+<p>The decisive property for control work is latency. In my own runs the median round trip
+for a three-question judgment was <strong>146&nbsp;ms</strong>
+(<a href="jev-latency.html">note 03</a>), with a 12-sample spread of 112–223&nbsp;ms. That is
+not a hard-real-time guarantee, but it is the difference between a judgment layer that can
+sit inside a robot's decision cycle and one that cannot.</p>
+
+<h3>Edge automation models: Needle 3</h3>
+
+<p>Cactus Compute's <a href="https://huggingface.co/Cactus-Compute/needle3">Needle 3</a> is a
+different animal, and I want to describe it accurately rather than fold it into the same
+story. It is a foundation model for tiny devices — a single <strong>8–29&nbsp;MB</strong>
+binary — doing three jobs entirely on-device: tool calling (pick the right function and fill
+every argument), structured extraction (declare a shape, get typed fields back), and text
+embedding.</p>
+
+<p>Two design choices are worth naming:</p>
+
+<ul>
+<li><strong>A capacity ladder.</strong> One set of weights is trained so <em>every</em>
+    depth from 2 to 20 layers is a deployable model in its own right. A 2-layer subnetwork
+    and a 20-layer one are the same model at different rungs, and any rung can be
+    fine-tuned independently.</li>
+<li><strong>Grammar-constrained decoding.</strong> A byte-level grammar compiled from your
+    schemas constrains every token, so the output <em>parses by construction</em> rather
+    than by hope. Off-topic requests return an empty list instead of a guess.</li>
+</ul>
+
+<p>Cactus reports 400–4&nbsp;k tokens/s decode on a Raspberry Pi 5, and reports that
+fine-tuning a 4-layer subnetwork (from 29M parameters) on a downstream task surpasses
+DeepSeek V4 Flash on their mobile tool-call suite. Those are <em>their</em> published
+figures on <em>their</em> evaluation sets, and I have not reproduced them. I cite them as
+claims with a provenance, not as measurements of mine.</p>
+
+<p>So the latency story is different from Jev's. Jev's 146&nbsp;ms is a network round trip
+to a hosted model. Needle's speed is a local forward pass with no network in the loop at all
+— a categorically different latency class, with the corresponding trade of general capacity
+for narrow competence.</p>
+
+<h2>The objection, stated at full strength</h2>
+
+<p>Here is the strongest version of "this is nothing new," and it deserves to be met head-on
+rather than waved away.</p>
+
+<p><strong>Robots have had fast reactive layers for decades.</strong> Subsumption
+architectures in the 1980s ran reactive behaviour on hardware slower than a modern watch.
+Whole-body control and model-predictive control run at hundreds of hertz to kilohertz.
+Learned visuomotor policies have produced genuinely reactive manipulation for years. Boston
+Dynamics machines do not deliberate before catching themselves. If the claim is "fast
+reactions," it was true in 1986.</p>
+
+<p><strong>And frontier models have been used in robotics for years.</strong> Say-Can, Code
+as Policies, VoxPoser and a long line of successors put an LLM in the loop to produce
+plans or code that a low-level controller then executes. The asymmetry between slow
+reasoning and fast control is the standard architecture, not a discovery.</p>
+
+<p><strong>And the models are not intelligent in the frontier sense.</strong> A
+<code>Choice</code> between four waypoints and a 4-layer classifier are not general
+intelligence. They cannot reason about a novel situation, explain themselves, or do
+anything outside the answer space you defined. Calling a constrained classifier "frontier
+LLM intelligence" would be simply false, and I am not going to make that claim.</p>
+
+<p>All three objections are correct. I concede all three.</p>
+
+<h2>What is actually new</h2>
+
+<p>Now the narrow claim, which survives all three objections.</p>
+
+<h3>1. The reactive layer's policy is authored in language, not arithmetic</h3>
+
+<p>Every reactive robot that came before needed its reflexes <em>written</em>: a threshold,
+a gain, a cost function, a trained policy. Expressing a nuanced policy meant finding the
+numbers that encoded it. "Slow down when the corner is tight and the surface is slick" is a
+sentence a person can write and a nightmare to convert into thresholds that behave.</p>
+
+<p>With a System One model, that sentence <em>is</em> the implementation. My wall-risk
+question was literally:</p>
+
+<pre><code>"Is the robot close enough to a wall that driving forward at full speed
+ risks hitting it within about one second?"</code></pre>
+
+<p>and that phrasing produced usable, state-varying answers at 146&nbsp;ms without my
+writing a single threshold. This is not "the model is smarter than MPC." Instead, the
+semantic gap between intent and behavior narrowed dramatically. The reactive layer
+inherited an LLM's <em>ability to understand a described situation</em>, without inheriting
+its latency.</p>
+
+<h3>2. The judgment is swappable at runtime</h3>
+
+<p>This is the part I find most underrated, and it is a direct consequence of the
+interface being language rather than weights. Changing what a classical controller does
+means rewriting and re-tuning code; changing what a trained policy does means collecting
+data and retraining. Changing what my robot does means <strong>sending different
+text</strong> — no deployment, no retraining, no new binary:</p>
+
+<pre><code># the same controller, a different policy, at runtime:
+"how much of the available speed should the robot use ...?"
+criteria = ["crawl or hold position", "move slowly",
+            "move at moderate speed", "move at full speed"]</code></pre>
+
+<p>Then swap the criteria for a cautious mode, or a mode that values smoothness over speed,
+and the control law consumes it unchanged. The reactivity and the control law are
+<em>decoupled from the policy</em>. I have not seen that in a reactive robot layer before,
+and it is the thing I would most want someone to try to falsify.</p>
+
+<h3>3. Confidence turns "act or ask" into a first-class control signal</h3>
+
+<p>A threshold produces a number. A calibrated judgment produces a number <em>and</em> a
+statement about its own reliability. Both Jev and Needle 3 return calibrated confidence, and
+Needle's engine implements a floor that withholds a call below it. That lets the fast layer
+do something new: participate honestly in its own escalation. "I am not sure enough to act on
+this" becomes a signal the architecture can route on — act, confirm, or hand off to a
+deliberative model — rather than a failure mode discovered after the robot has already moved.</p>
+
+<p>This is what makes the two-tier architecture a real architecture rather than a
+performance trick. The boundary between System 1 and System 2 is not fixed by latency. It is
+negotiated, per decision, on evidence.</p>
+
+<h2>Where the frontier model actually goes</h2>
+
+<p>Worth stating plainly, because the phrase "frontier LLM intelligence" in the framing of
+this question is the part I would push back on: in the architecture I built, the frontier
+model is <em>not</em> in the fast loop and should not be. Its jobs are the ones that are
+genuinely slow:</p>
+
+<table>
+<thead><tr><th>Layer</th><th>Job</th><th>Timescale</th></tr></thead>
+<tbody>
+<tr><td>System 2 (frontier LLM)</td><td>plan the task, interpret the work order, recover when reality contradicts the plan, handle the case nobody anticipated</td><td>seconds</td></tr>
+<tr><td>System 1 (Jev / Needle 3)</td><td>per-decision semantic judgment: is this risky, is this worth a detour, what does this instruction mean here</td><td>~100&nbsp;ms and below</td></tr>
+<tr><td>Control law (ordinary code)</td><td>heading, distance, damping, arrival, limits</td><td>20–1000&nbsp;Hz</td></tr>
+</tbody>
+</table>
+
+<p>The intuition "LLM thinking, but fast" is the wrong mental model. The right one is:
+the frontier model's <em>comprehension</em> is what gets compressed into the fast layer, and
+only for the decisions narrow enough to be expressed as a typed question. Everything the
+frontier model does that is actually expensive — open-ended reasoning, recovering from the
+unexpected, knowing what to do when the situation is outside every category you defined —
+stays slow, and it should.</p>
+
+<h2>What my own experiment says, including against me</h2>
+
+<p>I have one data point, and I should be honest that it is a mixed one. The individual
+layers worked: the simulator answered, MCP drove it, and the judgment layer returned usable
+answers in 146&nbsp;ms median. The composed loop <a href="jev-closed-loop.html">failed</a> —
+the robot spun in place and made zero net progress.</p>
+
+<p>The failure was entirely mine, and it is instructive about where the risk in this
+architecture actually sits. I had a control law whose turn gain and hold duration disagreed
+by a factor of about four, so it could never enter its own fine-tracking regime. I also
+<a href="what-did-not-work.html">misread the <code>Score</code> scale</a> and clamped a
+legitimate value of 2.1 (of 3) down to 1.0, silently flattening every urgency reading into a
+constant — and I first blamed the model for that, incorrectly.</p>
+
+<p>Two conclusions, and the second is the uncomfortable one:</p>
+
+<ol>
+<li><strong>The architecture localised the bug to the right layer.</strong> Because the
+    decision log recorded every judgment next to the command it produced, I knew within one
+    run that the fault was arithmetic in my code and not the model. That auditability is a
+    real property of keeping judgment and actuation separate, and it is an argument for this
+    decomposition that has nothing to do with latency.</li>
+<li><strong>The bottleneck is not the model.</strong> Everything that went wrong was
+    ordinary engineering that I got wrong. The exciting new component worked. The
+    thirty-year-old part is where I failed. Anyone adopting this should expect that
+    distribution: the semantics arrive cheap and fast, and the control engineering is still
+    on you.</li>
+</ol>
+
+<h2>What I am not claiming</h2>
+
+<ul>
+<li><strong>Not first to reactive robotics.</strong> Decades of prior art, cited above, and
+    none of it is diminished by this.</li>
+<li><strong>Not real-time safe.</strong> A ~150&nbsp;ms network judgment has network-shaped
+    tail risk. Nothing I have done establishes anything about hard deadlines. A reflex layer
+    that can be 223&nbsp;ms late on one tick in twelve is not a safety layer.</li>
+<li><strong>Not intelligence transferred.</strong> A typed judgment is narrower than it
+    sounds. Whether the <em>compression</em> of frontier comprehension into a constrained
+    answer space retains what matters is exactly the open empirical question, and my
+    evidence is one failed run.</li>
+<li><strong>Not tested on hardware.</strong> All of it is turtlesim. No dynamics, no sensor
+    noise, no actuator lag, no safety surface.</li>
+<li><strong>Not my numbers for Needle 3.</strong> I have not run it. Its published figures
+    are Cactus's, on their evaluations.</li>
+</ul>
+
+<h2>Why this might be the moment</h2>
+
+<p>Strip away the hype and the honest version is this. Fast reactive control has existed for
+forty years. Semantic understanding of a described situation has existed for a few years,
+but slowly and expensively. What appeared in the last year is the ability to have the second
+inside the timescale of the first — as a typed, calibrated, swappable judgment — and that
+combination had not been available before.</p>
+
+<p>It is not that robots became intelligent. It is that the fast half of a robot stopped
+needing to be hand-coded in numbers, and can now be told what to care about in words. That
+is a smaller claim than "frontier intelligence at reflex speed," and I think it is the
+actual event.</p>
+
+<p class="nav" style="margin-top:3rem">
+See also: <a href="system-one-and-system-two.html">note 01</a> (the thesis) &middot;
+<a href="jev-latency.html">note 03</a> (the measurements) &middot;
+<a href="jev-closed-loop.html">note 04</a> (the failure) &middot;
+<a href="what-did-not-work.html">note 05</a> (including my own misdiagnosis)
+</p>
+
+<div class="foot">
+<p>Part of <a href="../index.html">Working Notes</a>, September 2026. Publicly readable,
+deliberately not indexed — see <a href="on-publication.html">note 07</a>.</p>
+<p>TypeSafe's System One / Jev and Cactus Compute's Needle 3 are other people's work,
+described here from their published documentation. My contribution is the control-loop
+experiment and the measurements, and I claim nothing about the models themselves.</p>
+</div>
+
+</div>
+</body>
+</html>
