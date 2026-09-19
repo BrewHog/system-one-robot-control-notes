@@ -73,22 +73,29 @@ decision log proves which judgment caused which movement.</li>
   <td class="pass">live — 252&nbsp;ms round trip</td>
 </tr>
 <tr>
-  <td>Closed loop</td>
+  <td>Closed loop v1</td>
   <td>Model judgment &rarr; control law &rarr; continuous actuation, 12 ticks</td>
   <td class="fail">FAIL — robot spun in place, 0.00&nbsp;m net progress</td>
+</tr>
+<tr>
+  <td>Closed loop v2</td>
+  <td>Same loop after removing the <code>Score</code> clamp and adding stall detection, 32 ticks</td>
+  <td class="pass">PASS — 4/4 waypoints, 0 stall ticks, median 143&nbsp;ms</td>
 </tr>
 </tbody>
 </table>
 
 <div class="note">
-<p><strong>The headline result is a failure, and I am leaving it in.</strong> The
-individual layers all work: the simulator answers, MCP drives it, and the System&nbsp;1
-model returns a usable judgment in a median of 146&nbsp;ms. But when I wired them into a
-closed loop, the robot turned on the spot for the entire trial and made zero net progress.
-The cause is a bug in my control law, not in the model — and finding that out is the most
-useful thing this experiment produced. Details in
-<a href="notes/jev-closed-loop.html">note 04</a> and
-<a href="notes/what-did-not-work.html">note 05</a>.</p>
+<p><strong>Read the failure first, then the fix.</strong> The individual layers all work: the
+simulator answers, MCP drives it, and the System&nbsp;1 model returns a usable judgment in a
+median of ~145&nbsp;ms. The first closed loop I built failed &mdash; the robot turned on the spot
+for the whole trial with zero net progress &mdash; and the cause was a bug in my control law, not
+in the model. Two further defects remained in the loop even after the first write-up: a
+<code>Score</code> clamp that silently inverted a judgment, and no stall detection at all. With
+those removed the loop completes the full route: <strong>4/4 waypoints, 0 stall ticks</strong>.
+The failures are in <a href="notes/jev-closed-loop.html">note 04</a> and
+<a href="notes/what-did-not-work.html">note 05</a>; the working run is
+<a href="notes/jev-closed-loop-corrected.html">note 08</a>.</p>
 </div>
 
 <h2>Notes</h2>
@@ -122,6 +129,10 @@ useful thing this experiment produced. Details in
 <li>
   <span class="tag">07</span><span class="t"><a href="notes/on-publication.html">On publication, priority, and provable authorship</a></span><br>
   <span class="meta">Why this site is public but deliberately not indexed, and how the timestamps work.</span>
+</li>
+<li>
+  <span class="tag">08</span><span class="t"><a href="notes/jev-closed-loop-corrected.html">Closing the loop, for real: the run that completes</a></span><br>
+  <span class="meta">Removing the Score clamp and adding stall detection. 4/4 waypoints, 0 stall ticks, and what is still untested.</span>
 </li>
 </ul>
 

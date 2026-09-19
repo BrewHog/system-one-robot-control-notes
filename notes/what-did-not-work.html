@@ -33,11 +33,13 @@ rotate 1.98&nbsp;rad, while the deadband it aims at is 0.5&nbsp;rad wide. Roughl
 overshoot, so the fine-tracking branch was unreachable. Full analysis in
 <a href="jev-closed-loop.html">note 04</a>.</p>
 
-<p><span class="warn">Status:</span> the rate limit removes the deadlock and produces
-1.35&nbsp;m of forward progress where there was none, but it introduces a settling failure
-in the last part of the run (the robot moves backwards, and tail heading error is worse
-than the shipped law's). Partially fixed, and the fix has its own defect. Not
-resolved.</p>
+<p><span class="warn">Status:</span> <strong>resolved later.</strong> The rate limit
+removed the deadlock and produced 1.35&nbsp;m of forward progress where there was none, but it
+introduced a settling failure in the last part of the run. Two further defects &mdash; the
+<code>Score</code> clamp in section 2 below, and the missing stall detector in section 3 &mdash;
+were still present when this page was written. With all three removed the loop completes the
+route: 4/4 waypoints, 0 stall ticks. See
+<a href="jev-closed-loop-corrected.html">note 08</a>.</p>
 
 <h2>2. I misread the Score scale and clamped away a working signal</h2>
 

@@ -47,3 +47,5 @@ blockquote { margin:1.2rem 0; padding:.2rem 0 .2rem 1.1rem;
   color:var(--dim); font-size:.82rem; }
 .note { background:#fdf6e8; border-left:3px solid #c9a227; padding:.8rem 1rem;
   margin:1.3rem 0; font-size:.92rem; }
+.callout { background:#eef4fb; border-left:3px solid #4a7fb5; padding:.8rem 1rem;
+  margin:1.3rem 0; font-size:.92rem; }

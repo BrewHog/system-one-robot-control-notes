@@ -66,14 +66,31 @@ QUESTIONS = {
             "How much of the available speed should the robot use while it travels "
             "toward its chosen waypoint, given how clear the path ahead is?"
         ),
+        # Levels describe concrete situations rather than bare degrees. TypeSafe's
+        # guidance is explicit that "move slowly" gives the model nothing to match
+        # against, and that each level is judged on its own against the state.
         criteria=[
-            "crawl or hold position",
-            "move slowly",
-            "move at moderate speed",
-            "move at full speed",
+            "The robot is against an obstacle or misaligned and cannot safely move forward at all",
+            "The robot has an obstacle or a wall within about one metre ahead and should creep",
+            "The robot has roughly two to three metres of clear space ahead and can travel at a moderate pace",
+            "The robot has a long clear straight run to its waypoint and can travel at full speed",
         ],
     ),
 }
+
+# A Score runs from 0 to len(criteria) - 1, NOT 0 to 1. Normalizing by the top
+# level number is the documented way to put it on 0..1. Clamping a raw score to
+# 1.0 instead is not a rounding error: on a 4-level scale it silently rewrites
+# every answer to "creep", and because every raw score exceeds 1.0 the channel
+# collapses to a constant and the judgment stops reaching the controller.
+URGENCY_TOP_LEVEL = len(QUESTIONS["urgency"].criteria) - 1
+
+
+def normalize_score(raw: float, top_level: int = URGENCY_TOP_LEVEL) -> float:
+    """Put a Score on 0..1 the documented way: divide by its top level number."""
+    if top_level <= 0:
+        return 0.0
+    return max(0.0, min(1.0, raw / top_level))
 
 # The judgment selects inside this range; code owns the exact control law.
 MIN_LINEAR = 0.0
@@ -227,10 +244,19 @@ def jev_decide(client: TypeSafeClient, state: dict) -> tuple[dict, float]:
     started = time.perf_counter()
     response = client.system_one(state=state, questions=QUESTIONS)
     latency_ms = (time.perf_counter() - started) * 1000
+    urgency_answer = response.scores["urgency"]
     answers = {
         "target": response.choices["target"].choice,
         "wall_risk": response.nouls["wall_risk"].noul,
-        "urgency": response.scores["urgency"].score,
+        # Keep the raw score and its distribution, and normalize explicitly. The
+        # raw value is what a bug in the scaling shows up in, so it is what gets
+        # logged; recording only the derived number is how the clamp went unseen.
+        "urgency_raw": urgency_answer.score,
+        "urgency": normalize_score(urgency_answer.score),
+        "urgency_confidence": urgency_answer.confidence,
+        "urgency_probabilities": {
+            str(k): v for k, v in (urgency_answer.probabilities or {}).items()
+        },
     }
     return answers, latency_ms
 
@@ -281,6 +307,8 @@ def main() -> int:
     client = client_cm.__enter__() if client_cm else None
     current_target: str | None = None
     reached: set[str] = set()
+    stall_ticks = 0
+    stall_events: list[dict] = []
 
     try:
         for tick in range(1, args.ticks + 1):
@@ -327,7 +355,10 @@ def main() -> int:
                 reached.add(current_target)
             all_done = len(reached) >= len(WAYPOINTS)
 
-            urgency = max(0.0, min(1.0, answers["urgency"]))
+            # Already normalized to 0..1 by the documented divide-by-top-level.
+            # Do NOT clamp the raw score: on this 4-level scale a raw 2.1 means
+            # "moderate pace", and clamping it to 1.0 would command "creep".
+            urgency = answers["urgency"]
             wall_risk = answers["wall_risk"]
 
             decisions.append(
@@ -342,7 +373,8 @@ def main() -> int:
             )
             print(
                 f"{tick:>4} {target['name']:<20} d={distance:>4.2f} "
-                f"wall={wall_risk:>4.2f} urg={urgency:>4.2f} {latency:>6.0f}ms",
+                f"wall={wall_risk:>4.2f} urg={answers['urgency_raw']:>4.2f}"
+                f"->{urgency:>4.2f} {latency:>6.0f}ms",
                 end="",
                 flush=True,
             )
@@ -355,6 +387,9 @@ def main() -> int:
             hold_until = time.perf_counter() + args.hold
             last_linear = last_angular = None
             previous_angular = 0.0
+            inner_samples = 0
+            cmd_speed_sum = achieved_speed_sum = 0.0
+            cmd_spin_sum = achieved_spin_sum = 0.0
             while time.perf_counter() < hold_until:
                 cycle_start = time.perf_counter()
                 pose = ros.pose()
@@ -394,9 +429,44 @@ def main() -> int:
 
                 ros.publish(linear, angular)
                 last_linear, last_angular = linear, angular
+                inner_samples += 1
+                cmd_speed_sum += abs(linear)
+                achieved_speed_sum += abs(pose.get("linear_velocity", 0.0))
+                cmd_spin_sum += abs(angular)
+                achieved_spin_sum += abs(pose.get("angular_velocity", 0.0))
 
                 elapsed = time.perf_counter() - cycle_start
                 time.sleep(max(0.0, 1.0 / ACTUATION_HZ - elapsed))
+
+            # --- Stall check: pure arithmetic, so it belongs in code, not a model. ---
+            # "Commanded to move but not moving" is not representable in the state we
+            # send, so without this the loop happily reports progress while the robot
+            # is pinned. Comparing commanded against measured velocity is the
+            # unambiguous signal, and it costs no judgment call.
+            stalled = False
+            if inner_samples >= 4:
+                cmd_lin = cmd_speed_sum / inner_samples
+                got_lin = achieved_speed_sum / inner_samples
+                cmd_ang = cmd_spin_sum / inner_samples
+                got_ang = achieved_spin_sum / inner_samples
+                if cmd_lin > 0.3 and got_lin < 0.15 * cmd_lin:
+                    stalled = True
+                if cmd_ang > 0.5 and got_ang < 0.15 * cmd_ang:
+                    stalled = True
+                if stalled:
+                    stall_ticks += 1
+                    stall_events.append(
+                        {
+                            "tick": tick,
+                            "commanded_linear": round(cmd_lin, 3),
+                            "measured_linear": round(got_lin, 3),
+                            "commanded_angular": round(cmd_ang, 3),
+                            "measured_angular": round(got_ang, 3),
+                        }
+                    )
+            if stall_events:
+                decisions[-1]["stall"] = stall_events[-1] if stalled else None
+                decisions[-1]["stall_ticks_so_far"] = stall_ticks
 
             print(
                 f"  cmd=({last_linear:.2f},{last_angular:+.2f}) "
@@ -414,11 +484,14 @@ def main() -> int:
     time.sleep(0.5)
     out = ROOT / "logs" / f"jev_run_{int(time.time())}.json"
     out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps({"decisions": decisions}, indent=2))
+    out.write_text(
+        json.dumps({"decisions": decisions, "stall_events": stall_events}, indent=2)
+    )
 
     print()
     if reached:
         print(f"waypoints reached: {len(reached)}/{len(WAYPOINTS)} -> {sorted(reached)}")
+    print(f"stall ticks: {stall_ticks}/{len(decisions)}")
     if latencies:
         print(
             f"JEV latency: n={len(latencies)} min={min(latencies):.0f}ms "

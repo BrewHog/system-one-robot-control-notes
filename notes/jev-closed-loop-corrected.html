@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Closing the loop, for real: the run that completes — Working Notes</title>
+<meta name="robots" content="noindex, nofollow, noarchive">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+<p class="nav"><a href="../index.html">Working Notes</a> / note 08</p>
+<h1>Closing the loop, for real: the run that completes</h1>
+<p class="meta">2026-09-19 &middot; supersedes the failure status in notes 04 and 05. This run works.</p>
+
+<div class="callout">
+<p><strong>What changed.</strong> Notes 04 and 05 record the loop failing, and note 05 records a
+partial fix that introduced its own settling defect. This note records the state after both
+defects were removed. The earlier notes are left exactly as written; the correction lives
+here rather than in a rewrite of them.</p>
+</div>
+
+<h2>Result</h2>
+
+<table>
+<thead><tr><th>Measure</th><th>Value</th></tr></thead>
+<tbody>
+<tr><td>Waypoints reached</td><td><strong>4 / 4</strong> (north-east, north-west, south-west, south-east)</td></tr>
+<tr><td>Stall ticks</td><td><strong>0 / 32</strong></td></tr>
+<tr><td>Judgment latency</td><td>min 98 ms, median 143 ms, max 283 ms (n=32)</td></tr>
+<tr><td>Resulting route</td><td>one closed circuit of the four corners, docking at each</td></tr>
+</tbody>
+</table>
+
+<p>Evidence: <code>evidence/jev_run_corrected_scale.json</code> (the full 32-tick decision log, with
+raw and normalized scores per tick) and <code>screenshots/jev_run_corrected_scale.png</code>. Per the
+rule set in note 05, the claim rests on the numeric log; the screenshot is a supplement for a human.</p>
+
+<h2>The two defects that were left</h2>
+
+<h3>1. The Score clamp, finally removed</h3>
+
+<p>Note 05 identified that a <code>Score</code> runs from 0 to <code>len(criteria) - 1</code>, not 0 to 1,
+and that clamping the raw value to 1.0 had inverted the meaning of the answer. That diagnosis was
+correct, but the clamp was still in the control loop when notes 04 and 05 were published. The
+urgency channel was therefore still dead: every tick clamped to exactly 1.0.</p>
+
+<p>The fix is the documented one &mdash; divide by the top level number &mdash; and it is now applied
+at a single named site with the raw value preserved alongside it:</p>
+
+<pre><code>URGENCY_TOP_LEVEL = len(QUESTIONS["urgency"].criteria) - 1   # = 3
+
+def normalize_score(raw: float, top_level: int = URGENCY_TOP_LEVEL) -&gt; float:
+    """Put a Score on 0..1 the documented way: divide by its top level number."""
+    return max(0.0, min(1.0, raw / top_level))</code></pre>
+
+<p>The channel is alive now. Raw scores across the run ranged 1.66&ndash;2.94, normalizing to
+0.55&ndash;0.98, and the commanded speed tracked them. That is the behavior the input was designed
+for and it was absent in every earlier run.</p>
+
+<p>The related lesson from note 05 is now enforced in the log: <strong>both</strong> the raw score and
+the distribution are recorded, not just the derived number. The clamp was invisible precisely
+because the log held only the value the clamp produced.</p>
+
+<h3>2. Stall detection, because it is arithmetic</h3>
+
+<p>Note 05 recorded the wedged-robot case: five ticks of byte-identical pose while the loop
+commanded full rotation and reported nothing wrong. The state sent to the model describes position,
+heading and clearances, so "I am commanded to move and am not moving" was not representable in it
+and nothing downstream could react.</p>
+
+<p>Comparing commanded against measured velocity needs no judgment, so it lives in code. Each tick
+the fast loop accumulates commanded and achieved velocity from <code>/turtle1/pose</code> and flags a
+stall when the achieved value is under 15% of commanded for a meaningful command:</p>
+
+<pre><code>if cmd_lin &gt; 0.3 and got_lin &lt; 0.15 * cmd_lin:
+    stalled = True
+if cmd_ang &gt; 0.5 and got_ang &lt; 0.15 * cmd_ang:
+    stalled = True</code></pre>
+
+<p>The detected condition is recorded per tick in the decision log. In this run it fired 0 times out
+of 32, which is the correct answer for a run that completed. It is a detector, not yet a recovery
+policy &mdash; the response to being stuck is the part that should go to the model, and that is not
+built.</p>
+
+<h2>What is still not done</h2>
+
+<p>The boundary of what this record supports, unchanged from note 05 except where stated:</p>
+
+<ul>
+<li><strong>No frontier-LLM baseline in the same loop.</strong> The System 1 / System 2 latency
+comparison remains unmeasured, and it is the comparison that would make the argument concrete.</li>
+<li><strong>No stall recovery.</strong> Detection exists; response does not.</li>
+<li><strong>No real hardware.</strong> turtlesim has no dynamics, no sensor noise and no actuator lag.</li>
+<li><strong>No fallback if a judgment never arrives.</strong> The loop blocks on the network call.</li>
+<li><strong>No safety layer.</strong> Unguarded write access to <code>cmd_vel</code>.</li>
+<li><strong>Small samples.</strong> 32 ticks, one route. Enough to show convergence and the absence of
+the limit cycle; nowhere near enough for a latency claim.</li>
+<li><strong>The <code>Noul</code> wall-risk channel was never exercised.</strong> It stayed at
+0.15&ndash;0.48 for the whole run, so its 0.6 intervention branch never fired and its behavior under
+load is untested.</li>
+<li><strong>Thresholds are still demo values.</strong> <code>wall_risk &gt; 0.6</code>,
+<code>ARRIVE_RADIUS = 0.6</code>, <code>DOCK_RADIUS = 0.25</code> were chosen to make the run work,
+not calibrated against outcomes.</li>
+</ul>
+
+<h2>Related fixes in this pass</h2>
+
+<p>Two changes to how the questions are written, both following the documented guidance that levels
+should describe <em>situations</em> rather than degrees:</p>
+
+<ul>
+<li>The four urgency levels were rewritten from bare degrees ("move slowly") to concrete
+situations ("the robot has an obstacle or a wall within about one metre ahead and should creep").</li>
+<li>The target <code>Choice</code> instructs the model to prefer waypoints in
+<code>not_yet_reached</code>, and to hold its current target until it is reached. Code applies
+hysteresis on top, so a switch is only honoured when the current target is finished or the new pick
+is strictly closer.</li>
+</ul>
+
+<p>Next: <a href="reproduce.html">Reproducing all of this</a>, updated with the corrected scale.</p>
+
+</div>
+</body>
+</html>

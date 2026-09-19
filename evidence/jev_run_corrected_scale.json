@@ -1,0 +1,2170 @@
+{
+  "decisions": [
+    {
+      "tick": 1,
+      "pose": {
+        "x": 5.54,
+        "y": 5.54,
+        "theta": 0.0
+      },
+      "state": {
+        "robot": {
+          "x": 5.54,
+          "y": 5.54,
+          "heading_rad": 0.0,
+          "nearest_wall_m": 5.54
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 4.33,
+          "north-west shelf": 4.38,
+          "south-west shelf": 4.44,
+          "south-east shelf": 4.38
+        },
+        "current_target": null,
+        "already_reached": [],
+        "not_yet_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-east shelf",
+        "wall_risk": 0.2,
+        "urgency_raw": 2.94,
+        "urgency": 0.98,
+        "urgency_confidence": 0.94,
+        "urgency_probabilities": {
+          "0": 0.01,
+          "1": 0.01,
+          "2": 0.03,
+          "3": 0.95
+        }
+      },
+      "distance_to_target": 4.33,
+      "latency_ms": 282.8
+    },
+    {
+      "tick": 2,
+      "pose": {
+        "x": 6.763,
+        "y": 6.014,
+        "theta": 0.644
+      },
+      "state": {
+        "robot": {
+          "x": 6.76,
+          "y": 6.01,
+          "heading_rad": 0.64,
+          "nearest_wall_m": 4.33
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 3.17,
+          "north-west shelf": 5.07,
+          "south-west shelf": 5.67,
+          "south-east shelf": 4.05
+        },
+        "current_target": "north-east shelf",
+        "already_reached": [],
+        "not_yet_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-east shelf",
+        "wall_risk": 0.15,
+        "urgency_raw": 2.71,
+        "urgency": 0.9033333333333333,
+        "urgency_confidence": 0.71,
+        "urgency_probabilities": {
+          "0": 0.0,
+          "1": 0.02,
+          "2": 0.23,
+          "3": 0.75
+        }
+      },
+      "distance_to_target": 3.17,
+      "latency_ms": 134.5
+    },
+    {
+      "tick": 3,
+      "pose": {
+        "x": 7.902,
+        "y": 7.264,
+        "theta": 0.961
+      },
+      "state": {
+        "robot": {
+          "x": 7.9,
+          "y": 7.26,
+          "heading_rad": 0.96,
+          "nearest_wall_m": 3.19
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 1.51,
+          "north-west shelf": 5.66,
+          "south-west shelf": 7.34,
+          "south-east shelf": 4.91
+        },
+        "current_target": "north-east shelf",
+        "already_reached": [],
+        "not_yet_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-east shelf",
+        "wall_risk": 0.22,
+        "urgency_raw": 2.17,
+        "urgency": 0.7233333333333333,
+        "urgency_confidence": 0.69,
+        "urgency_probabilities": {
+          "0": 0.01,
+          "1": 0.06,
+          "2": 0.69,
+          "3": 0.24
+        }
+      },
+      "distance_to_target": 1.51,
+      "latency_ms": 207.3
+    },
+    {
+      "tick": 4,
+      "pose": {
+        "x": 8.43,
+        "y": 8.156,
+        "theta": 1.139
+      },
+      "state": {
+        "robot": {
+          "x": 8.43,
+          "y": 8.16,
+          "heading_rad": 1.14,
+          "nearest_wall_m": 2.66
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 0.48,
+          "north-west shelf": 6.05,
+          "south-west shelf": 8.34,
+          "south-east shelf": 5.76
+        },
+        "current_target": "north-east shelf",
+        "already_reached": [],
+        "not_yet_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-east shelf",
+        "wall_risk": 0.22,
+        "urgency_raw": 2.07,
+        "urgency": 0.69,
+        "urgency_confidence": 0.86,
+        "urgency_probabilities": {
+          "0": 0.01,
+          "1": 0.02,
+          "2": 0.86,
+          "3": 0.11
+        }
+      },
+      "distance_to_target": 0.48,
+      "latency_ms": 172.1
+    },
+    {
+      "tick": 5,
+      "pose": {
+        "x": 8.525,
+        "y": 8.376,
+        "theta": 1.185
+      },
+      "state": {
+        "robot": {
+          "x": 8.53,
+          "y": 8.38,
+          "heading_rad": 1.18,
+          "nearest_wall_m": 2.56
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 0.24,
+          "north-west shelf": 6.13,
+          "south-west shelf": 8.56,
+          "south-east shelf": 5.98
+        },
+        "current_target": "north-east shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.22,
+        "urgency_raw": 2.0,
+        "urgency": 0.6666666666666666,
+        "urgency_confidence": 0.82,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.85,
+          "3": 0.09
+        }
+      },
+      "distance_to_target": 6.13,
+      "latency_ms": 121.8
+    },
+    {
+      "tick": 6,
+      "pose": {
+        "x": 8.385,
+        "y": 8.663,
+        "theta": 2.441
+      },
+      "state": {
+        "robot": {
+          "x": 8.39,
+          "y": 8.66,
+          "heading_rad": 2.44,
+          "nearest_wall_m": 2.43
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 0.22,
+          "north-west shelf": 5.99,
+          "south-west shelf": 8.66,
+          "south-east shelf": 6.27
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.33,
+        "urgency_raw": 2.13,
+        "urgency": 0.71,
+        "urgency_confidence": 0.72,
+        "urgency_probabilities": {
+          "0": 0.02,
+          "1": 0.03,
+          "2": 0.74,
+          "3": 0.21
+        }
+      },
+      "distance_to_target": 5.99,
+      "latency_ms": 107.2
+    },
+    {
+      "tick": 7,
+      "pose": {
+        "x": 7.279,
+        "y": 9.03,
+        "theta": 3.042
+      },
+      "state": {
+        "robot": {
+          "x": 7.28,
+          "y": 9.03,
+          "heading_rad": 3.04,
+          "nearest_wall_m": 2.06
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 1.39,
+          "north-west shelf": 4.9,
+          "south-west shelf": 8.23,
+          "south-east shelf": 6.76
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.4,
+        "urgency_raw": 2.06,
+        "urgency": 0.6866666666666666,
+        "urgency_confidence": 0.72,
+        "urgency_probabilities": {
+          "0": 0.04,
+          "1": 0.04,
+          "2": 0.75,
+          "3": 0.17
+        }
+      },
+      "distance_to_target": 4.9,
+      "latency_ms": 246.0
+    },
+    {
+      "tick": 8,
+      "pose": {
+        "x": 5.781,
+        "y": 8.998,
+        "theta": -3.059
+      },
+      "state": {
+        "robot": {
+          "x": 5.78,
+          "y": 9.0,
+          "heading_rad": -3.06,
+          "nearest_wall_m": 2.09
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 2.85,
+          "north-west shelf": 3.4,
+          "south-west shelf": 7.41,
+          "south-east shelf": 7.17
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.44,
+        "urgency_raw": 1.98,
+        "urgency": 0.66,
+        "urgency_confidence": 0.9,
+        "urgency_probabilities": {
+          "0": 0.02,
+          "1": 0.03,
+          "2": 0.91,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 3.4,
+      "latency_ms": 107.5
+    },
+    {
+      "tick": 9,
+      "pose": {
+        "x": 4.55,
+        "y": 8.871,
+        "theta": -3.027
+      },
+      "state": {
+        "robot": {
+          "x": 4.55,
+          "y": 8.87,
+          "heading_rad": -3.03,
+          "nearest_wall_m": 2.22
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 4.06,
+          "north-west shelf": 2.17,
+          "south-west shelf": 6.82,
+          "south-east shelf": 7.63
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.38,
+        "urgency_raw": 1.97,
+        "urgency": 0.6566666666666666,
+        "urgency_confidence": 0.9,
+        "urgency_probabilities": {
+          "0": 0.02,
+          "1": 0.03,
+          "2": 0.91,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 2.17,
+      "latency_ms": 136.0
+    },
+    {
+      "tick": 10,
+      "pose": {
+        "x": 3.287,
+        "y": 8.717,
+        "theta": -3.015
+      },
+      "state": {
+        "robot": {
+          "x": 3.29,
+          "y": 8.72,
+          "heading_rad": -3.02,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 5.31,
+          "north-west shelf": 0.89,
+          "south-west shelf": 6.38,
+          "south-east shelf": 8.25
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.41,
+        "urgency_raw": 1.88,
+        "urgency": 0.6266666666666666,
+        "urgency_confidence": 0.81,
+        "urgency_probabilities": {
+          "0": 0.02,
+          "1": 0.11,
+          "2": 0.83,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 0.89,
+      "latency_ms": 105.4
+    },
+    {
+      "tick": 11,
+      "pose": {
+        "x": 2.688,
+        "y": 8.639,
+        "theta": -3.009
+      },
+      "state": {
+        "robot": {
+          "x": 2.69,
+          "y": 8.64,
+          "heading_rad": -3.01,
+          "nearest_wall_m": 2.45
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 5.91,
+          "north-west shelf": 0.29,
+          "south-west shelf": 6.25,
+          "south-east shelf": 8.6
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf"
+        ],
+        "not_yet_reached": [
+          "north-west shelf",
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "north-west shelf",
+        "wall_risk": 0.47,
+        "urgency_raw": 1.79,
+        "urgency": 0.5966666666666667,
+        "urgency_confidence": 0.76,
+        "urgency_probabilities": {
+          "0": 0.06,
+          "1": 0.11,
+          "2": 0.81,
+          "3": 0.02
+        }
+      },
+      "distance_to_target": 0.29,
+      "latency_ms": 178.0
+    },
+    {
+      "tick": 12,
+      "pose": {
+        "x": 2.574,
+        "y": 8.624,
+        "theta": -3.008
+      },
+      "state": {
+        "robot": {
+          "x": 2.57,
+          "y": 8.62,
+          "heading_rad": -3.01,
+          "nearest_wall_m": 2.47
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.03,
+          "north-west shelf": 0.18,
+          "south-west shelf": 6.23,
+          "south-east shelf": 8.66
+        },
+        "current_target": "north-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.42,
+        "urgency_raw": 1.67,
+        "urgency": 0.5566666666666666,
+        "urgency_confidence": 0.59,
+        "urgency_probabilities": {
+          "0": 0.12,
+          "1": 0.12,
+          "2": 0.72,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 6.23,
+      "latency_ms": 152.2
+    },
+    {
+      "tick": 13,
+      "pose": {
+        "x": 2.25,
+        "y": 8.302,
+        "theta": -2.027
+      },
+      "state": {
+        "robot": {
+          "x": 2.25,
+          "y": 8.3,
+          "heading_rad": -2.03,
+          "nearest_wall_m": 2.25
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.36,
+          "north-west shelf": 0.33,
+          "south-west shelf": 5.9,
+          "south-east shelf": 8.67
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.45,
+        "urgency_raw": 2.01,
+        "urgency": 0.6699999999999999,
+        "urgency_confidence": 0.67,
+        "urgency_probabilities": {
+          "0": 0.05,
+          "1": 0.05,
+          "2": 0.73,
+          "3": 0.17
+        }
+      },
+      "distance_to_target": 5.9,
+      "latency_ms": 143.6
+    },
+    {
+      "tick": 14,
+      "pose": {
+        "x": 2.04,
+        "y": 7.124,
+        "theta": -1.605
+      },
+      "state": {
+        "robot": {
+          "x": 2.04,
+          "y": 7.12,
+          "heading_rad": -1.61,
+          "nearest_wall_m": 2.04
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.72,
+          "north-west shelf": 1.52,
+          "south-west shelf": 4.74,
+          "south-east shelf": 8.08
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.48,
+        "urgency_raw": 1.96,
+        "urgency": 0.6533333333333333,
+        "urgency_confidence": 0.81,
+        "urgency_probabilities": {
+          "0": 0.04,
+          "1": 0.03,
+          "2": 0.86,
+          "3": 0.07
+        }
+      },
+      "distance_to_target": 4.74,
+      "latency_ms": 114.8
+    },
+    {
+      "tick": 15,
+      "pose": {
+        "x": 2.073,
+        "y": 5.905,
+        "theta": -1.507
+      },
+      "state": {
+        "robot": {
+          "x": 2.07,
+          "y": 5.9,
+          "heading_rad": -1.51,
+          "nearest_wall_m": 2.07
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 7.06,
+          "north-west shelf": 2.72,
+          "south-west shelf": 3.52,
+          "south-east shelf": 7.41
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.46,
+        "urgency_raw": 1.92,
+        "urgency": 0.64,
+        "urgency_confidence": 0.72,
+        "urgency_probabilities": {
+          "0": 0.07,
+          "1": 0.04,
+          "2": 0.79,
+          "3": 0.1
+        }
+      },
+      "distance_to_target": 3.52,
+      "latency_ms": 104.1
+    },
+    {
+      "tick": 16,
+      "pose": {
+        "x": 2.17,
+        "y": 4.711,
+        "theta": -1.48
+      },
+      "state": {
+        "robot": {
+          "x": 2.17,
+          "y": 4.71,
+          "heading_rad": -1.48,
+          "nearest_wall_m": 2.17
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 7.51,
+          "north-west shelf": 3.9,
+          "south-west shelf": 2.32,
+          "south-east shelf": 6.83
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.45,
+        "urgency_raw": 1.96,
+        "urgency": 0.6533333333333333,
+        "urgency_confidence": 0.89,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.91,
+          "3": 0.03
+        }
+      },
+      "distance_to_target": 2.32,
+      "latency_ms": 98.2
+    },
+    {
+      "tick": 17,
+      "pose": {
+        "x": 2.286,
+        "y": 3.501,
+        "theta": -1.471
+      },
+      "state": {
+        "robot": {
+          "x": 2.29,
+          "y": 3.5,
+          "heading_rad": -1.47,
+          "nearest_wall_m": 2.29
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 8.12,
+          "north-west shelf": 5.1,
+          "south-west shelf": 1.11,
+          "south-east shelf": 6.41
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.44,
+        "urgency_raw": 1.87,
+        "urgency": 0.6233333333333334,
+        "urgency_confidence": 0.79,
+        "urgency_probabilities": {
+          "0": 0.05,
+          "1": 0.07,
+          "2": 0.84,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 1.11,
+      "latency_ms": 101.7
+    },
+    {
+      "tick": 18,
+      "pose": {
+        "x": 2.351,
+        "y": 2.865,
+        "theta": -1.467
+      },
+      "state": {
+        "robot": {
+          "x": 2.35,
+          "y": 2.87,
+          "heading_rad": -1.47,
+          "nearest_wall_m": 2.35
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 8.48,
+          "north-west shelf": 5.74,
+          "south-west shelf": 0.47,
+          "south-east shelf": 6.27
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-west shelf",
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-west shelf",
+        "wall_risk": 0.41,
+        "urgency_raw": 1.86,
+        "urgency": 0.62,
+        "urgency_confidence": 0.77,
+        "urgency_probabilities": {
+          "0": 0.06,
+          "1": 0.07,
+          "2": 0.83,
+          "3": 0.04
+        }
+      },
+      "distance_to_target": 0.47,
+      "latency_ms": 164.9
+    },
+    {
+      "tick": 19,
+      "pose": {
+        "x": 2.374,
+        "y": 2.646,
+        "theta": -1.466
+      },
+      "state": {
+        "robot": {
+          "x": 2.37,
+          "y": 2.65,
+          "heading_rad": -1.47,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 8.62,
+          "north-west shelf": 5.95,
+          "south-west shelf": 0.25,
+          "south-east shelf": 6.23
+        },
+        "current_target": "south-west shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.37,
+        "urgency_raw": 1.98,
+        "urgency": 0.66,
+        "urgency_confidence": 0.58,
+        "urgency_probabilities": {
+          "0": 0.08,
+          "1": 0.06,
+          "2": 0.66,
+          "3": 0.2
+        }
+      },
+      "distance_to_target": 6.23,
+      "latency_ms": 223.8
+    },
+    {
+      "tick": 20,
+      "pose": {
+        "x": 2.748,
+        "y": 2.262,
+        "theta": -0.464
+      },
+      "state": {
+        "robot": {
+          "x": 2.75,
+          "y": 2.26,
+          "heading_rad": -0.46,
+          "nearest_wall_m": 2.26
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 8.63,
+          "north-west shelf": 6.35,
+          "south-west shelf": 0.37,
+          "south-east shelf": 5.85
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.36,
+        "urgency_raw": 2.08,
+        "urgency": 0.6933333333333334,
+        "urgency_confidence": 0.79,
+        "urgency_probabilities": {
+          "0": 0.01,
+          "1": 0.05,
+          "2": 0.79,
+          "3": 0.15
+        }
+      },
+      "distance_to_target": 5.85,
+      "latency_ms": 146.9
+    },
+    {
+      "tick": 21,
+      "pose": {
+        "x": 4.012,
+        "y": 2.029,
+        "theta": -0.032
+      },
+      "state": {
+        "robot": {
+          "x": 4.01,
+          "y": 2.03,
+          "heading_rad": -0.03,
+          "nearest_wall_m": 2.03
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 8.01,
+          "north-west shelf": 6.77,
+          "south-west shelf": 1.65,
+          "south-east shelf": 4.6
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.28,
+        "urgency_raw": 2.2,
+        "urgency": 0.7333333333333334,
+        "urgency_confidence": 0.78,
+        "urgency_probabilities": {
+          "0": 0.0,
+          "1": 0.01,
+          "2": 0.78,
+          "3": 0.21
+        }
+      },
+      "distance_to_target": 4.6,
+      "latency_ms": 157.2
+    },
+    {
+      "tick": 22,
+      "pose": {
+        "x": 5.438,
+        "y": 2.08,
+        "theta": 0.073
+      },
+      "state": {
+        "robot": {
+          "x": 5.44,
+          "y": 2.08,
+          "heading_rad": 0.07,
+          "nearest_wall_m": 2.08
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 7.25,
+          "north-west shelf": 7.19,
+          "south-west shelf": 3.05,
+          "south-east shelf": 3.18
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.27,
+        "urgency_raw": 2.26,
+        "urgency": 0.7533333333333333,
+        "urgency_confidence": 0.71,
+        "urgency_probabilities": {
+          "0": 0.0,
+          "1": 0.01,
+          "2": 0.71,
+          "3": 0.28
+        }
+      },
+      "distance_to_target": 3.18,
+      "latency_ms": 131.8
+    },
+    {
+      "tick": 23,
+      "pose": {
+        "x": 6.885,
+        "y": 2.21,
+        "theta": 0.101
+      },
+      "state": {
+        "robot": {
+          "x": 6.88,
+          "y": 2.21,
+          "heading_rad": 0.1,
+          "nearest_wall_m": 2.21
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.62,
+          "north-west shelf": 7.81,
+          "south-west shelf": 4.49,
+          "south-east shelf": 1.73
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.34,
+        "urgency_raw": 2.19,
+        "urgency": 0.73,
+        "urgency_confidence": 0.72,
+        "urgency_probabilities": {
+          "0": 0.0,
+          "1": 0.03,
+          "2": 0.73,
+          "3": 0.24
+        }
+      },
+      "distance_to_target": 1.73,
+      "latency_ms": 138.1
+    },
+    {
+      "tick": 24,
+      "pose": {
+        "x": 7.929,
+        "y": 2.321,
+        "theta": 0.112
+      },
+      "state": {
+        "robot": {
+          "x": 7.93,
+          "y": 2.32,
+          "heading_rad": 0.11,
+          "nearest_wall_m": 2.32
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.31,
+          "north-west shelf": 8.37,
+          "south-west shelf": 5.53,
+          "south-east shelf": 0.68
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.3,
+        "urgency_raw": 2.13,
+        "urgency": 0.71,
+        "urgency_confidence": 0.79,
+        "urgency_probabilities": {
+          "0": 0.01,
+          "1": 0.03,
+          "2": 0.79,
+          "3": 0.17
+        }
+      },
+      "distance_to_target": 0.68,
+      "latency_ms": 143.0
+    },
+    {
+      "tick": 25,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": [
+          "south-east shelf"
+        ]
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.3,
+        "urgency_raw": 2.09,
+        "urgency": 0.6966666666666667,
+        "urgency_confidence": 0.8,
+        "urgency_probabilities": {
+          "0": 0.02,
+          "1": 0.02,
+          "2": 0.82,
+          "3": 0.14
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 137.0
+    },
+    {
+      "tick": 26,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.28,
+        "urgency_raw": 2.05,
+        "urgency": 0.6833333333333332,
+        "urgency_confidence": 0.77,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.8,
+          "3": 0.14
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 167.6
+    },
+    {
+      "tick": 27,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.29,
+        "urgency_raw": 2.01,
+        "urgency": 0.6699999999999999,
+        "urgency_confidence": 0.84,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.02,
+          "2": 0.87,
+          "3": 0.08
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 147.0
+    },
+    {
+      "tick": 28,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.3,
+        "urgency_raw": 2.04,
+        "urgency": 0.68,
+        "urgency_confidence": 0.77,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.8,
+          "3": 0.14
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 190.6
+    },
+    {
+      "tick": 29,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.31,
+        "urgency_raw": 2.0,
+        "urgency": 0.6666666666666666,
+        "urgency_confidence": 0.8,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.84,
+          "3": 0.1
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 168.0
+    },
+    {
+      "tick": 30,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.32,
+        "urgency_raw": 2.0,
+        "urgency": 0.6666666666666666,
+        "urgency_confidence": 0.79,
+        "urgency_probabilities": {
+          "0": 0.04,
+          "1": 0.03,
+          "2": 0.82,
+          "3": 0.11
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 142.3
+    },
+    {
+      "tick": 31,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.29,
+        "urgency_raw": 2.01,
+        "urgency": 0.6699999999999999,
+        "urgency_confidence": 0.8,
+        "urgency_probabilities": {
+          "0": 0.04,
+          "1": 0.02,
+          "2": 0.83,
+          "3": 0.11
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 102.6
+    },
+    {
+      "tick": 32,
+      "pose": {
+        "x": 8.368,
+        "y": 2.372,
+        "theta": 0.117
+      },
+      "state": {
+        "robot": {
+          "x": 8.37,
+          "y": 2.37,
+          "heading_rad": 0.12,
+          "nearest_wall_m": 2.37
+        },
+        "waypoints": [
+          {
+            "name": "north-east shelf",
+            "x": 8.6,
+            "y": 8.6
+          },
+          {
+            "name": "north-west shelf",
+            "x": 2.4,
+            "y": 8.6
+          },
+          {
+            "name": "south-west shelf",
+            "x": 2.4,
+            "y": 2.4
+          },
+          {
+            "name": "south-east shelf",
+            "x": 8.6,
+            "y": 2.4
+          }
+        ],
+        "distance_to_waypoints_m": {
+          "north-east shelf": 6.23,
+          "north-west shelf": 8.63,
+          "south-west shelf": 5.97,
+          "south-east shelf": 0.23
+        },
+        "current_target": "south-east shelf",
+        "already_reached": [
+          "north-east shelf",
+          "north-west shelf",
+          "south-east shelf",
+          "south-west shelf"
+        ],
+        "not_yet_reached": []
+      },
+      "answers": {
+        "target": "south-east shelf",
+        "wall_risk": 0.29,
+        "urgency_raw": 2.01,
+        "urgency": 0.6699999999999999,
+        "urgency_confidence": 0.81,
+        "urgency_probabilities": {
+          "0": 0.03,
+          "1": 0.03,
+          "2": 0.84,
+          "3": 0.1
+        }
+      },
+      "distance_to_target": 0.23,
+      "latency_ms": 132.1
+    }
+  ],
+  "stall_events": []
+}

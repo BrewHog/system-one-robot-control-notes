@@ -39,6 +39,8 @@ SITE_FILES = [
     "evidence/control_law_diagnosis.json",
     "evidence/mcp_e2e_test_output.txt",
     "evidence/turtle_verify.png",
+    "evidence/jev_run_corrected_scale.json",
+    "screenshots/jev_run_corrected_scale.png",
     "notes/system-one-and-system-two.html",
     "notes/ros-mcp-verified.html",
     "notes/jev-latency.html",
@@ -46,6 +48,7 @@ SITE_FILES = [
     "notes/what-did-not-work.html",
     "notes/reproduce.html",
     "notes/on-publication.html",
+    "notes/jev-closed-loop-corrected.html",
 ]
 
 # Source that produced the published evidence.

@@ -8,19 +8,20 @@ timestamps.
 
 ## Status
 
-The individual layers work. The composed closed loop **failed**, reproducibly, and the
-failure is documented rather than hidden.
+The individual layers work, and after removing two further defects the composed closed loop
+**completes the route**. The earlier failure is kept in the record rather than rewritten.
 
 | Layer | Result |
 |---|---|
 | ROS 2 Jazzy turtlesim in Docker, over rosbridge | reachable — 7 topics, 57 services, 3 nodes |
 | MCP client → ros-mcp → rosbridge → robot | PASS — 31 tools, 1.613 m displacement verified independently, 3/3 runs |
-| System 1 typed-judgment API | live — 252 ms cold, 146 ms median over 12 ticks |
-| Closed loop (judgment → control law → actuation) | FAIL — 0.00 m net progress, rotation limit cycle |
+| System 1 typed-judgment API | live — 252 ms cold, 143 ms median over 32 ticks |
+| Closed loop v1 | FAIL — 0.00 m net progress, rotation limit cycle (control-law bug of mine) |
+| Closed loop v2 (corrected `Score` scale + stall detection) | **PASS — 4/4 waypoints, 0 stall ticks** |
 
-Root cause of the failure is a control-law bug of my own, not the model: a 2.2 rad/s turn
-cap held for 0.9 s can rotate up to 1.98 rad while the deadband it aims at is only
-0.5 rad wide — roughly 4× overshoot, so the fine-tracking branch is unreachable.
+Full post-mortem of the failure in [`notes/what-did-not-work.html`](notes/what-did-not-work.html);
+the working run and what is still untested in
+[`notes/jev-closed-loop-corrected.html`](notes/jev-closed-loop-corrected.html).
 
 ## Layout
 

@@ -23,6 +23,9 @@ IDEA.md
 # sessions on this machine.
 logs/
 
+# Local OpenTimestamps tool cache (not record content)
+.ots-home/
+
 # Local editor noise
 .DS_Store
 *.swp
