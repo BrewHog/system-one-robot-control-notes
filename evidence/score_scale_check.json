@@ -1,0 +1,38 @@
+[
+  {
+    "nearest_wall_m": 0.4,
+    "raw_score": 1.15,
+    "normalized_0_1": 0.3833333333333333,
+    "confidence": 0.71,
+    "probabilities": {
+      "0": 0.07,
+      "1": 0.75,
+      "2": 0.14,
+      "3": 0.04
+    }
+  },
+  {
+    "nearest_wall_m": 2.5,
+    "raw_score": 2.8,
+    "normalized_0_1": 0.9333333333333332,
+    "confidence": 0.8,
+    "probabilities": {
+      "0": 0.0,
+      "1": 0.0,
+      "2": 0.19,
+      "3": 0.81
+    }
+  },
+  {
+    "nearest_wall_m": 4.0,
+    "raw_score": 2.93,
+    "normalized_0_1": 0.9766666666666667,
+    "confidence": 0.93,
+    "probabilities": {
+      "0": 0.0,
+      "1": 0.0,
+      "2": 0.06,
+      "3": 0.94
+    }
+  }
+]

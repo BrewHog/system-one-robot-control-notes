@@ -84,8 +84,9 @@ a fixed set of labels, or a position on a defined scale, and nothing else.</p>
 <li>The System&nbsp;1 round trip would be fast enough for a control loop. <em>(Measured:
 median 146&nbsp;ms. Confirmed — see <a href="jev-latency.html">note 03</a>.)</em></li>
 <li>The model's judgments would vary sensibly with robot state rather than being noise.
-<em>(Partially confirmed, but with a scale problem I did not anticipate — its scores came
-back outside the documented range. See <a href="what-did-not-work.html">note 05</a>.)</em></li>
+<em>(Confirmed, after a detour: I misread the Score scale and clamped a working
+signal into a constant, then corrected it. The model was discriminating correctly all
+along. See <a href="what-did-not-work.html">note 05</a>.)</em></li>
 <li>Wiring the two together would be the easy part, because each layer independently
 worked. <em>(Wrong. This is where it broke — see <a href="jev-closed-loop.html">note 04</a>.)</em></li>
 </ol>

@@ -39,45 +39,80 @@ in the last part of the run (the robot moves backwards, and tail heading error i
 than the shipped law's). Partially fixed, and the fix has its own defect. Not
 resolved.</p>
 
-<h2>2. The score scale came back outside its defined range</h2>
+<h2>2. I misread the Score scale and clamped away a working signal</h2>
 
-<p>This is the finding I understand least and trust most, because it is unambiguous in the
-data. The <code>urgency</code> question is defined with four criteria:</p>
+<p><span class="fail">Broke:</span> the <code>urgency</code> channel behaved as a constant.
+Linear velocity was commanded at maximum for the entire run, so a control input I designed
+to modulate speed was doing nothing at all.</p>
 
-<pre><code>Score(
-    instructions="How much of the available speed should the robot use ...?",
-    criteria=["crawl or hold position", "move slowly",
-              "move at moderate speed", "move at full speed"],
-)</code></pre>
-
-<p>I assumed that would map onto 0.0 – 1.0 in four steps. Across 12 ticks the returned
-values were:</p>
+<p><span class="pass">Found by:</span> sorting the raw returned values and noticing every
+one sat outside the range I had assumed. Across 12 ticks they were:</p>
 
 <pre><code>2.01  2.07  2.10  2.12  2.13  2.15
 2.17  2.24  2.41  2.55</code></pre>
 
-<p>The range is 2.01 – 2.55. Every single value sits above the maximum I believed the scale
-had, and the spread (0.54) is wider than one step of a four-step scale would be.</p>
+<p><span class="warn">Root cause — mine, not the model's:</span> I assumed a
+<code>Score</code> always returns 0–1. It does not. The returned <code>score</code> is a
+position on the level numbers, so it runs from 0 to <em>the top level number</em>, which is
+<code>len(criteria) - 1</code>. My question had four criteria:</p>
 
-<p><span class="fail">Consequence:</span> my code does
-<code>urgency = max(0.0, min(1.0, answers["urgency"]))</code>, so <em>every</em> urgency
-value clamped to exactly 1.0. The linear velocity was therefore commanded at maximum the
-entire run. A channel I designed to modulate speed had, in practice, become a constant.
-I had built a bang-bang controller and believed I had built a proportional one.</p>
+<pre><code>criteria=["crawl or hold position", "move slowly",
+          "move at moderate speed", "move at full speed"]</code></pre>
+
+<p>so level 0 is "crawl or hold position" and <strong>level 3</strong> is "move at full
+speed". The valid range was 0–3, and a value near 2.1 means "move at moderate speed". Every
+number the model returned was correct and on-scale.</p>
+
+<p>My code then did this:</p>
+
+<pre><code>urgency = max(0.0, min(1.0, answers["urgency"]))   # WRONG</code></pre>
+
+<p>which clamped a legitimate 2.1 — level 2, "move at moderate speed" — down to 1.0, whose
+meaning on this scale is "move slowly". The clamp did not merely lose resolution; it
+inverted the instruction. And since every value exceeded 1.0, every tick clamped to exactly
+1.0 and the channel became a constant. The documented approach is explicit: divide each
+score by its top level number, <code>len(criteria) - 1</code>, to put it on 0 to 1.</p>
+
+<p><span class="pass">Verified.</span> I re-ran the same question against three contexts and
+recorded raw scores, normalised values, and full probability distributions
+(<a href="../evidence/score_scale_check.json">evidence/score_scale_check.json</a>):</p>
+
+<table>
+<thead><tr><th>Situation</th><th class="num">raw</th><th class="num">clamped</th><th class="num">normalised</th><th class="num">confidence</th></tr></thead>
+<tbody>
+<tr><td>0.4 m from a wall</td><td class="num">1.150</td><td class="num fail">1.000</td><td class="num pass">0.383</td><td class="num">0.71</td></tr>
+<tr><td>mid-floor, 2.5 m clear</td><td class="num">2.800</td><td class="num fail">1.000</td><td class="num pass">0.933</td><td class="num">0.80</td></tr>
+<tr><td>open space, 4.0 m clear</td><td class="num">2.930</td><td class="num fail">1.000</td><td class="num pass">0.977</td><td class="num">0.93</td></tr>
+</tbody>
+</table>
+
+<p>The model discriminates across the full range, shifts probability mass from level 1 to
+level 3 as clearance improves, and reports rising confidence as the situation becomes
+unambiguous. The judgment was working the entire time. My clamp discarded it.</p>
 
 <div class="note">
-<p><strong>Why this is the most important entry on this page.</strong> A clamp silently
-converted a mis-scaled model output into a plausible-looking constant. Nothing crashed.
-The log looked fine if you only read the columns I chose to print. I only caught it by
-sorting the raw values. Lesson: when you clamp or normalise a model's output, log the
-<em>raw</em> value too, and check the observed range against the documented range instead
-of assuming the model respects your scale.</p>
+<p><strong>I published this wrong the first time, and this note records that.</strong> My
+initial write-up said the model "returned values outside its defined range" and implied a
+possible defect on TypeSafe's side. That was incorrect, and it was the damaging kind of
+error: a confident explanation that points at someone else's component when the fault lay
+in three lines of my own arithmetic. I found it by going back to the actual
+<code>Score</code> documentation instead of trusting my assumption about what a score means.
+The correction is in the commit history; the original claim is not quietly deleted.</p>
 </div>
 
-<p><span class="warn">Open question:</span> I do not yet know whether this is my
-misunderstanding of the <code>Score</code> API, a documented scale I skipped reading, or
-behaviour worth reporting upstream. I am flagging it rather than guessing, and it is the
-first thing I would dig into next.</p>
+<p><span class="warn">Transferable lesson:</span> when a model's output looks out of range,
+the first hypothesis should be my own misunderstanding of the contract, not the model's
+failure to honour it. And when you clamp or normalise a model's output, log the <em>raw</em>
+value and its distribution, not just the value you derived from it. My decision log recorded
+only scalar scores, so the distributions — the most informative part of the answer — were
+lost, and I had to re-measure to recover them.</p>
+
+<p><span class="warn">A second defect this exposed:</span> TypeSafe's guidance is that Score
+levels should describe <em>concrete situations</em> ("broken feature, but workaround
+exists") rather than bare degrees ("move slowly"). My four levels are closer to degrees than
+to situations, which is plausibly why the scores cluster mid-scale instead of separating
+cleanly. Rewriting each level with example situations, alongside the corrected
+normalisation, is the next improvement here.</p>
 
 <h2>3. No collision awareness, so a wedged robot looks like a working one</h2>
 

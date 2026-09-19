@@ -83,7 +83,9 @@ happily kept commanding maximum rotation.</p>
 <h2>Diagnosis: not a model bug</h2>
 
 <p>The model did nothing wrong. It picked a sensible target, kept picking it, and reported
-low wall risk. The bug is entirely in my control law, and it is arithmetic:</p>
+low wall risk. The bug is entirely in my control law, and it is arithmetic. (A second defect
+compounded it: I also misread the <code>Score</code> scale and clamped the model's urgency
+output — see <a href="what-did-not-work.html">note 05</a>. Neither fault was the model's.)</p>
 
 <pre><code>if abs(error) &gt; 0.5:            # coarse re-orientation deadband (rad)
     linear = 0.0                # stop translating while turning
@@ -160,8 +162,11 @@ fixing it and posting a success:</p>
     and a model judgment got back into a live actuation loop. Every hop worked. What broke
     was my arithmetic, not the integration.</li>
 <li><strong>The model's output was usable.</strong> A stable target choice and a
-    plausible risk judgment arrived in a median of 146&nbsp;ms. Nothing about the failure
-    implicates the System&nbsp;1 layer.</li>
+    plausible risk judgment arrived in a median of 146&nbsp;ms. Nothing here implicates the
+    System&nbsp;1 layer — though I initially got that partly wrong: I also misread the
+    <code>Score</code> scale and clamped the urgency judgment into a constant, which is a
+    defect in my code that I first misattributed to the model. Corrected in
+    <a href="what-did-not-work.html">note 05</a>.</li>
 <li><strong>The architecture localised the bug.</strong> I knew within one run that the
     fault was in the control law and not the model, because the decision log records every
     judgment alongside the command it produced. That auditability is a property of the

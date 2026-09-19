@@ -1,5 +1,5 @@
 # SHA-256 manifest - Working Notes on System 1 robot control
-# Generated: 2026-09-19T06:28:46Z
+# Generated: 2026-09-19T06:33:07Z
 # Author: Justin (github.com/BrewHog)
 #
 # Verify from this directory:
@@ -12,7 +12,7 @@
 # Both cover this file's own SHA-256, so verify them as described in
 # verify.html rather than looking for them in the list below.
 # --- PUBLISHED SITE ---
-72d81a17d9fa182491a750a03ca9fb94199c971502efb7719bf6bddd5ddbeb6a  index.html
+d5bebaa5f16c017bef5b84170fd4e55311c214d0dd15dac848e83bfbea0c1413  index.html
 a0103570f22ff01e7179259fafec1fb925e7d2770d9586ccd72fadfdf2edb9df  style.css
 0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
@@ -22,11 +22,11 @@ d352daeba1c9257b2af8f1e609a4cdcf7f3cd50edf77a84a2b8e88a0e328c49a  evidence/jev_r
 ad08325c2f2a6ce3f268e22d2b355a5ee52756f4f008594c807e58cd0499b8fe  evidence/control_law_diagnosis.json
 d6b39d9f6dda842129bc55f678d48cb82f41ffceb6df029965637965ce99f54d  evidence/mcp_e2e_test_output.txt
 d4d81fc80a7f84f20f5efad480150081e11b7b030961ade2a033d79d0a8458f2  evidence/turtle_verify.png
-b8d7809a7c7d772172f89c97c3e4ff21e20af483670142c89c2b2a1ac5a1a7d1  notes/system-one-and-system-two.html
+031fb917fc5318ea236e8098cec013cd73b6c9dd346b6c1b425cd8828e838626  notes/system-one-and-system-two.html
 8edbbfff6bb6e92c7a33c5a72e1c7d99ef11070577b387a0585fc6d5448cad0f  notes/ros-mcp-verified.html
 5de3b5635ce3917b69c7f7aafd227d987d9a7171030ff73dc2725a042a8d8ba5  notes/jev-latency.html
-051242c0ac142a23bfc85c9b14abda332531be53c0ea573dac471c18469efc33  notes/jev-closed-loop.html
-6d4241aa145e59a80675793f4b5dda5563125ea826759afbb03b6ef21674e846  notes/what-did-not-work.html
+600d7dfc6afc5dd0fac5109422dc0bb0ec1e4f93d89653f3ae34506eb53d7d06  notes/jev-closed-loop.html
+c7793f4403f87f6dd4e2e2ef913339d8ee5bc692a10f2e45db3ddd1484c8bde0  notes/what-did-not-work.html
 023b503a6a68d801f95f22289f2b279ca58fb81deec02ae82ab971c2c767cd20  notes/reproduce.html
 7a0964212aea067d46edbd155e398932e11ea20f92bd98d5499d4c663b66de1a  notes/on-publication.html
 # --- SOURCE THAT PRODUCED THE EVIDENCE ---
