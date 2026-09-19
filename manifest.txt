@@ -1,5 +1,5 @@
 # SHA-256 manifest - Working Notes on System 1 robot control
-# Generated: 2026-09-19T06:39:51Z
+# Generated: 2026-09-19T06:41:39Z
 # Author: Justin (github.com/BrewHog)
 #
 # Verify from this directory:
@@ -12,7 +12,7 @@
 # Both cover this file's own SHA-256, so verify them as described in
 # verify.html rather than looking for them in the list below.
 # --- PUBLISHED SITE ---
-013979abd934ff0befc9f18c4d2a8a452729e0eb53f04a6dc6c8dbd8652585cd  index.html
+db623f3325c17e48b6bcb0c10dc0e29900ad2af0926a2bacfdf32b828b3355bd  index.html
 bd2a2faf5eecd8baea68d998066690ca379b3ad13f7b1d1653e7f69aed4da7e1  style.css
 0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
@@ -30,6 +30,7 @@ d4d81fc80a7f84f20f5efad480150081e11b7b030961ade2a033d79d0a8458f2  evidence/turtl
 95633b33352e733eb3e0eae145090c17931f7c9818f1d8bc1b335b721573bc7c  notes/what-did-not-work.html
 023b503a6a68d801f95f22289f2b279ca58fb81deec02ae82ab971c2c767cd20  notes/reproduce.html
 7a0964212aea067d46edbd155e398932e11ea20f92bd98d5499d4c663b66de1a  notes/on-publication.html
+998499d9251467b20e21299f8152f8808634b3e25d2cb58dc519ec220d5680d2  notes/reactivity-with-frontier-intelligence.html
 723ea3e07b07c141ae128050a674e0b647d68bc698eef6e86556de9674888445  notes/jev-closed-loop-corrected.html
 # --- SOURCE THAT PRODUCED THE EVIDENCE ---
 a88838cbfdc736bbc506fd5cd9f00c5bc62372c844890274af385e189c66011a  src/scripts/jev_controller.py

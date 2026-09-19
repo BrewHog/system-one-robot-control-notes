@@ -52,6 +52,7 @@ SITE_FILES = [
     "notes/what-did-not-work.html",
     "notes/reproduce.html",
     "notes/on-publication.html",
+    "notes/reactivity-with-frontier-intelligence.html",
     "notes/jev-closed-loop-corrected.html",
 ]
 
