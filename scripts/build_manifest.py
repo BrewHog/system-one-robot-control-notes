@@ -15,6 +15,7 @@ Usage:
 from __future__ import annotations
 
 import hashlib
+import os
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
@@ -134,7 +135,15 @@ def main() -> int:
     missing: list[str] = []
 
     add("# SHA-256 manifest - Working Notes on System 1 robot control")
-    add(f"# Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')}")
+    # A wall-clock stamp makes every regeneration a different file, so the digest
+    # changes each run and any anchored proof immediately covers the wrong bytes.
+    # BUILD_TIMESTAMP pins the stamp, which makes the build reproducible: the same
+    # inputs produce the same digest, and the digest that gets stamped is the one a
+    # reader can recompute.
+    generated = os.environ.get(
+        "BUILD_TIMESTAMP", datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    )
+    add(f"# Generated: {generated}")
     add("# Author: Justin (github.com/BrewHog)")
     add("#")
     add("# Verify from this directory:")

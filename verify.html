@@ -96,6 +96,20 @@ openssl ts -reply -in manifest.tsr -text | sed -n '/Message data/,+4p'
 shasum -a 256 manifest.txt
 # The 32 bytes in the Message data block must equal that digest.</code></pre>
 
+<p><strong>The manifest is reproducible.</strong> An earlier version stamped each generation
+with the wall clock, which meant every rebuild produced different bytes and any anchored proof
+immediately covered the wrong file. The build now takes its stamp from the
+<code>BUILD_TIMESTAMP</code> environment variable, so a rebuild from the same inputs produces
+the same digest:</p>
+
+<pre><code>BUILD_TIMESTAMP=2026-09-19T06:45:00Z python3 scripts/build_manifest.py
+shasum -a 256 manifest.txt
+# 39fe696062779246312536485bdfd53ce3f8c8aab5a49a02b748c584b697395a</code></pre>
+
+<p>If that digest reproduces, the manifest is the same one the proofs below cover. This is a
+stronger claim than a matching file list: it means the bundle is verifiable by rebuilding it,
+not only by trusting the copy you downloaded.</p>
+
 <p>This bundle has been re-stamped. The first proofs covered an earlier manifest; two
 further defects were then fixed (see
 <a href="notes/jev-closed-loop-corrected.html">note 08</a>) and the bundle was re-anchored.
