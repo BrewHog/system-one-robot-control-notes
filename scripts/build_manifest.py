@@ -28,7 +28,11 @@ SITE_FILES = [
     "style.css",
     "robots.txt",
     ".nojekyll",
-    "verify.html",
+    # verify.html is deliberately NOT listed. It documents this manifest, so listing
+    # it would make the manifest depend on a file that depends on the manifest: the
+    # digest changes the moment the page states it, and any token serial printed on
+    # the page is stale before it is written. Excluding it breaks the cycle by
+    # construction instead of by convention.
     # The proof artifacts themselves are deliberately NOT listed. manifest.txt.ots
     # and manifest.tsr are created *after* this manifest and are verified by the
     # tools that consume them (`ots verify`, `openssl ts -reply`). Listing a proof

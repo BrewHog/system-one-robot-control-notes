@@ -84,11 +84,31 @@ block equals your own SHA-256 of <code>manifest.txt</code>. Two independent mech
 two different trust models, agreeing on the same digest. Neither required trusting me to
 state a date.</p>
 
-<p>The token issued for this bundle reads <code>Status: Granted</code>,
-<code>Hash Algorithm: sha256</code>, <code>Time stamp: Sep 19 06:22:46 2026 GMT</code>,
-serial <code>0x836F9A4B199CA0076B93202C02A3D9CA</code>. Again, the imprint is the point:
-compare it against the digest you computed rather than against a number printed here,
-because a manifest can be regenerated and this page cannot notice.</p>
+<p>Rather than printing the serial and time of the current token on this page, compute
+them yourself &mdash; <strong>this page is deliberately excluded from the manifest</strong>, so
+the digest does not depend on what is written here:</p>
+
+<pre><code># Fetch the token details: look for Status: Granted, and read the serial and time.
+openssl ts -reply -in manifest.tsr -text | head -20
+
+# The authoritative check is the imprint, not the numbers above:
+openssl ts -reply -in manifest.tsr -text | sed -n '/Message data/,+4p'
+shasum -a 256 manifest.txt
+# The 32 bytes in the Message data block must equal that digest.</code></pre>
+
+<p>This bundle has been re-stamped. The first proofs covered an earlier manifest; two
+further defects were then fixed (see
+<a href="notes/jev-closed-loop-corrected.html">note 08</a>) and the bundle was re-anchored.
+The superseded proofs are kept rather than overwritten, because a superseded proof is what
+establishes that the earlier, weaker claim existed when it claims to have existed:</p>
+
+<pre><code>manifest.txt.ots              current OpenTimestamps proof (pending; upgrade to confirm)
+manifest.txt.ots.superseded   proof for the previous manifest - verifies only against it
+manifest.tsr                  current RFC 3161 token
+manifest.tsr.superseded       token for the previous manifest</code></pre>
+
+<p>A superseded proof will report <code>File does not match original</code> when verified
+against the current manifest. That is correct behaviour, and is why both are kept.</p>
 
 <h2>Step 4 — third-party archive copies</h2>
 

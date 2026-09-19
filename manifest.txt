@@ -1,5 +1,5 @@
 # SHA-256 manifest - Working Notes on System 1 robot control
-# Generated: 2026-09-19T06:37:43Z
+# Generated: 2026-09-19T06:39:51Z
 # Author: Justin (github.com/BrewHog)
 #
 # Verify from this directory:
@@ -16,7 +16,6 @@
 bd2a2faf5eecd8baea68d998066690ca379b3ad13f7b1d1653e7f69aed4da7e1  style.css
 0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
-6bfbe38d4a1f36a9f7e81db73829757d86071c2fc476f88c9f70a773bbd2c587  verify.html
 d352daeba1c9257b2af8f1e609a4cdcf7f3cd50edf77a84a2b8e88a0e328c49a  evidence/jev_run_1789798395.json
 852dd35576f2de169505570dea24341006f6511e49b46519b0594d7c3e64e631  evidence/jev_closed_loop_run.txt
 ad08325c2f2a6ce3f268e22d2b355a5ee52756f4f008594c807e58cd0499b8fe  evidence/control_law_diagnosis.json
