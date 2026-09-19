@@ -1,5 +1,5 @@
 # SHA-256 manifest - Working Notes on System 1 robot control
-# Generated: 2026-09-19T06:27:39Z
+# Generated: 2026-09-19T06:28:46Z
 # Author: Justin (github.com/BrewHog)
 #
 # Verify from this directory:
@@ -16,7 +16,7 @@
 a0103570f22ff01e7179259fafec1fb925e7d2770d9586ccd72fadfdf2edb9df  style.css
 0ce5d0a261da0889a1f12957675f453b8204078970b210a259de47c17ee12868  robots.txt
 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855  .nojekyll
-8cb0f518e77f31b87f8d629c3d191e8c99f3caaf2f81b0ac024855cfc53f9c6a  verify.html
+6bfbe38d4a1f36a9f7e81db73829757d86071c2fc476f88c9f70a773bbd2c587  verify.html
 d352daeba1c9257b2af8f1e609a4cdcf7f3cd50edf77a84a2b8e88a0e328c49a  evidence/jev_run_1789798395.json
 852dd35576f2de169505570dea24341006f6511e49b46519b0594d7c3e64e631  evidence/jev_closed_loop_run.txt
 ad08325c2f2a6ce3f268e22d2b355a5ee52756f4f008594c807e58cd0499b8fe  evidence/control_law_diagnosis.json
@@ -30,7 +30,7 @@ b8d7809a7c7d772172f89c97c3e4ff21e20af483670142c89c2b2a1ac5a1a7d1  notes/system-o
 023b503a6a68d801f95f22289f2b279ca58fb81deec02ae82ab971c2c767cd20  notes/reproduce.html
 7a0964212aea067d46edbd155e398932e11ea20f92bd98d5499d4c663b66de1a  notes/on-publication.html
 # --- SOURCE THAT PRODUCED THE EVIDENCE ---
-790ceaca86f0da2a620ba713bd87734d98bba8616b784c7c84978e5db1021df3  src/scripts/jev_controller.py
+027ca0a49bdb2bcec49d5a436c88507997b58a7bb2a04623d49afa61eeedea51  src/scripts/jev_controller.py
 f1deb64995087e5684846d79aa1a2e25f0ec1768194b8d02482e76ee16be28c4  src/scripts/control_law_diagnosis.py
 3a5d17c3fd6ba344b2874dd9af4e76a0b2c5a3b209f964960b92beea8332bba1  src/scripts/jev_smoke.py
 0655237dbf67a3e333b9b32cac635c5c3f4cbfb056d3d55807b4b70e70789e0f  src/scripts/jev_discriminate.py

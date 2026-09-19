@@ -53,8 +53,23 @@ openssl ts -reply -in manifest.tsr -text   # independent RFC 3161 timestamp
 ```
 
 `ots verify` reports `Pending confirmation in Bitcoin blockchain` until the next Bitcoin
-block contains the calendar commitment (roughly hourly); `ots upgrade manifest.txt.ots`
-then promotes it to a confirmed block height. Full details in `verify.html`.
+block contains the calendar commitment (roughly hourly). Promote it once, which needs no key:
+
+```bash
+ots upgrade manifest.txt.ots
+ots verify  manifest.txt.ots    # now reports a Bitcoin block height
+```
+
+Full details in `verify.html`.
+
+### Archive snapshots
+
+Automated submission to the Wayback Machine and archive.today was rate-limited from the
+publishing network (HTTP 429), so snapshots may lag these commits. Submit manually if you
+want a third-party copy:
+
+- Save Page Now: <https://web.archive.org/save/>
+- archive.today: <https://archive.ph/>
 
 ## Attribution
 

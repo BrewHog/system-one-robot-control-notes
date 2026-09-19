@@ -86,6 +86,11 @@ MAX_ANGULAR_SLEW = 8.0
 # A waypoint counts as reached inside this radius (metres).
 ARRIVE_RADIUS = 0.6
 
+# Inside this radius the robot is on top of the waypoint; stop chasing the
+# bearing, because at point-blank range the bearing swings wildly and the robot
+# spins in place instead of finishing.
+DOCK_RADIUS = 0.25
+
 # How often cmd_vel is re-published. turtlesim integrates a decaying command, so
 # the command must be held continuously rather than sent once per judgment.
 ACTUATION_HZ = 20.0
@@ -298,29 +303,29 @@ def main() -> int:
 
             # Hysteresis: honour a model switch only when the current target is done
             # or clearly worse. Without this the robot chases a target that changes
-            # every tick and spins in place instead of travelling; with it, arrival
-            # is what releases the target.
-            arrived = False
-            if current_target is not None:
+            # every tick and spins in place instead of travelling.
+            #
+            # Arrival is evaluated once, against the target actually being driven.
+            # Deciding it earlier - against the pre-switch target - marks unreached
+            # waypoints as done and the route silently completes itself.
+            if current_target is not None and target["name"] != current_target:
                 current_wp = next(wp for wp in WAYPOINTS if wp["name"] == current_target)
                 current_distance = math.hypot(
                     current_wp["x"] - pose["x"], current_wp["y"] - pose["y"]
                 )
-                arrived = current_distance < ARRIVE_RADIUS
+                current_arrived = current_distance < ARRIVE_RADIUS
+                # Stay on the current target unless it is done, or the model's pick
+                # is strictly closer than what remains.
+                if not current_arrived and current_distance <= distance:
+                    target = current_wp
+                    distance = current_distance
 
-                if target["name"] != current_target:
-                    # A switch is allowed once the current target is reached, or if
-                    # the model's pick is strictly closer than what remains.
-                    if not arrived and current_distance <= distance:
-                        target = current_wp
-                        distance = current_distance
-            else:
-                arrived = distance < ARRIVE_RADIUS
-
+            arrived = distance < ARRIVE_RADIUS
             current_target = target["name"]
             history.append(target["name"])
             if arrived:
                 reached.add(current_target)
+            all_done = len(reached) >= len(WAYPOINTS)
 
             urgency = max(0.0, min(1.0, answers["urgency"]))
             wall_risk = answers["wall_risk"]
@@ -363,6 +368,15 @@ def main() -> int:
                 if distance < 0.9:
                     linear = min(linear, 0.6)  # arrive gently
 
+                # Parked on the waypoint (or the whole route is done): hold still
+                # rather than servo on a meaningless bearing.
+                if distance < DOCK_RADIUS or all_done:
+                    ros.publish(0.0, 0.0)
+                    last_linear, last_angular = 0.0, 0.0
+                    elapsed = time.perf_counter() - cycle_start
+                    time.sleep(max(0.0, 1.0 / ACTUATION_HZ - elapsed))
+                    continue
+
                 # Proportional unicycle controller with rate limiting. The angular
                 # rate is proportional to heading error but clamped and slew-limited,
                 # so the robot arcs onto the target. An unclamped or bang-bang turn
@@ -403,6 +417,8 @@ def main() -> int:
     out.write_text(json.dumps({"decisions": decisions}, indent=2))
 
     print()
+    if reached:
+        print(f"waypoints reached: {len(reached)}/{len(WAYPOINTS)} -> {sorted(reached)}")
     if latencies:
         print(
             f"JEV latency: n={len(latencies)} min={min(latencies):.0f}ms "

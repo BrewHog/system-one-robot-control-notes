@@ -90,7 +90,31 @@ serial <code>0x836F9A4B199CA0076B93202C02A3D9CA</code>. Again, the imprint is th
 compare it against the digest you computed rather than against a number printed here,
 because a manifest can be regenerated and this page cannot notice.</p>
 
-<h2>Step 4 — check the arithmetic behind the headline claim</h2>
+<h2>Step 4 — third-party archive copies</h2>
+
+<p>The two proofs above are the ones I control. Archive copies are a third, independent
+record, held by organisations with no connection to me, with their own crawl timestamps.</p>
+
+<p>Check for existing snapshots:</p>
+
+<pre><code># Wayback Machine
+https://web.archive.org/web/*/brewhog.github.io/system-one-robot-control-notes/*
+
+# archive.today
+https://archive.ph/newest/https://brewhog.github.io/system-one-robot-control-notes/</code></pre>
+
+<p><strong>Honest note on timing.</strong> Automated submission to both services was
+rate-limited from the network this was published from (HTTP 429), so the earliest snapshots
+may postdate the timestamps above by some hours or days. That is exactly why the Bitcoin and
+RFC&nbsp;3161 proofs exist rather than relying on archives: a snapshot proves a page was
+reachable when a crawler happened to visit, whereas the OpenTimestamps proof fixes content
+and time without needing anyone's cooperation. If archive snapshots are the evidence you
+care about, use the manual forms rather than assuming a crawler arrives on its own:</p>
+
+<pre><code>https://web.archive.org/save/     (Save Page Now)
+https://archive.ph/               (submit a URL in the form)</code></pre>
+
+<h2>Step 5 — check the arithmetic behind the headline claim</h2>
 
 <p>The most contestable claim on this site is that the shipped control law cannot escape
 its deadband. That is not an opinion, it is a division, and you can check it from the
